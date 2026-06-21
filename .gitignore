@@ -1,0 +1,6 @@
+VulkanPBR.pdf
+# Visual Studio cache
+Code/.vs/
+Code/out/
+
+ThirdParty/slang/bin/
