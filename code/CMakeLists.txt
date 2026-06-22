@@ -72,7 +72,7 @@ add_custom_target(Shaders ALL DEPENDS ${SPV_FILES})
 
 #Adding ibs to the executable while building
 
-add_executable(VulkanFramework ${SRC_LIST})
+add_executable(VulkanFramework ${SRC_LIST} "common.h")
 target_link_libraries(VulkanFramework vulkan-1.lib glfw3.lib)
 
 add_dependencies(VulkanFramework Shaders)

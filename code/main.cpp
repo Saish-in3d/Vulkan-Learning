@@ -1,10 +1,6 @@
-#define GLFW_INCLUDE_Vulkan
 
-#include "glm/glm.hpp"
-#include "GLFW/glfw3.h"
-#include "vulkan/vulkan.h"
 
-#include <iostream>
+#include "common.h"
 
 int main()
 {
