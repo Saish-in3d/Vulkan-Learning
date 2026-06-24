@@ -20,13 +20,13 @@
 namespace VkFW {
 
 	template<class T>
-	using ref = std::shared_ptr<t>;
+	using ref = std::shared_ptr<T>;
 
 	template<class T>
-	using Scope = std::unique_ptr<t>;
+	using Scope = std::unique_ptr<T>;
 
 	template<class T>
-	using WeakRef = std::weak_ptr<t>;
+	using WeakRef = std::weak_ptr<T>;
 
 	template<class T, class...Args>
 	[[nodiscard]] inline ref<T> MakeRef(Args&&... args) 
