@@ -1,4 +1,4 @@
-
+#pragma once
 //#include "vulkan/vulkan.h"
 
 #include <iostream>
@@ -29,10 +29,10 @@ namespace VkFW {
 	using WeakRef = std::weak_ptr<T>;
 
 	template<class T, class...Args>
-	[[nodiscard]] inline ref<T> MakeRef(Args&&... args) 
+	[[nodiscard]] inline ref<T> MakeRef(Args&&... args)
 	{
-		return std::make_shared<T>(std::forward<Args>(args)...)
+		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
 
 
-}
+}//namespace VkFW 

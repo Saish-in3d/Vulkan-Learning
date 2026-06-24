@@ -74,7 +74,7 @@ add_custom_target(Shaders ALL DEPENDS ${SPV_FILES}) #ALL: "Build this target aut
 
 #Adding libs to the executable while building
 
-add_executable(VulkanFramework ${SRC_LIST} "common.h") #produces VulkanFramework.exe
+add_executable(VulkanFramework ${SRC_LIST} "common.h" "VulkanApp.cpp") #produces VulkanFramework.exe
 target_link_libraries(VulkanFramework vulkan-1.lib glfw3.lib) #linking libs to vulkanframework.ece target
 
 add_dependencies(VulkanFramework Shaders) #add_dependencies(A B): Make sure target B is built before target A
