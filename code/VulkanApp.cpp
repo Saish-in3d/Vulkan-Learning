@@ -19,7 +19,7 @@ namespace VKFW
 			throw std::runtime_error("Failed to initialize GLFW");
 		}
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Tell GLFW not to create an OpenGL context
-		glfwCreateWindow(width, height, "Vulkan Window", nullptr, nullptr);
+		window = glfwCreateWindow(width, height, "Vulkan Window", nullptr, nullptr);
 
 
 		if (!window)
