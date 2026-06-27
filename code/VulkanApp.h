@@ -1,5 +1,6 @@
 #pragma once
 #include "common.h"
+#include "platform/Window.h"
 
 namespace VKFW {
 	class VulkanApp 
@@ -14,7 +15,7 @@ namespace VKFW {
 		void mainLoop();
 		void cleanup();
 
-		GLFWwindow* window;
+		Sharedref<Platform::Window> window;
 
 		int width = 1280;
 		int height = 720;

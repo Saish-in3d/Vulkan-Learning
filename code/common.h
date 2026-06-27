@@ -17,7 +17,7 @@
 #define GLFW_INCLUDE_VULKAN //exposes vulkan helpers from glfw3.h, helps to create glfw window and vulkan instance, surface, etc.
 #include "GLFW/glfw3.h"
 
-namespace VkFW {
+namespace VKFW {
 
 	template<class T>
 	using Sharedref = std::shared_ptr<T>;

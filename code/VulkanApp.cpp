@@ -1,9 +1,10 @@
 #include "VulkanApp.h"
 
+
 namespace VKFW
 {
 
-	void VKFW::VulkanApp::run()
+	void VulkanApp::run()
 	{
 		initWindow();
 		initVulkan();
@@ -12,21 +13,9 @@ namespace VKFW
 
 	}
 
-	void VKFW::VulkanApp::initWindow()
+	void VulkanApp::initWindow()
 	{
-		if(!glfwInit())
-		{
-			throw std::runtime_error("Failed to initialize GLFW");
-		}
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Tell GLFW not to create an OpenGL context
-		window = glfwCreateWindow(width, height, "Vulkan Window", nullptr, nullptr);
-
-
-		if (!window)
-		{
-			glfwTerminate();
-			throw std::runtime_error("glfwcreatewindowfailed");
-		}
+		window = MakeSharedRef<Platform::Window>(width, height);
 
 
 	}
@@ -37,18 +26,14 @@ namespace VKFW
 
 	void VKFW::VulkanApp::mainLoop()
 	{
-		while (!glfwWindowShouldClose(window))
+		while (!window->shouldClose())
 		{
-			glfwPollEvents();
+			window->poolEvents();
 		}
 	}
 
 	void VKFW::VulkanApp::cleanup()
 	{
-		if (window)
-		{
-			glfwDestroyWindow(window);
-			glfwTerminate();
-		}
+		window.reset();
 	}
 }
