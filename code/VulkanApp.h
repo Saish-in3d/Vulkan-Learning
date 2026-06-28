@@ -15,10 +15,14 @@ namespace VKFW {
 		void mainLoop();
 		void cleanup();
 
+		void onResize(int w, int h);
+
 		Sharedref<Platform::Window> window;
 
 		int width = 1280;
 		int height = 720;
+
+		bool mFrameBufferResized = false;
 
 	};
 }

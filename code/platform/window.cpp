@@ -1,45 +1,60 @@
 #include "window.h"
 
-VKFW::Platform::Window::Window(int Width, int Height)
+namespace VKFW::Platform
 {
-	mWidth = Width;
-	mHeight = Height;
 
-	if (!glfwInit())
+	Window::Window(int Width, int Height)
 	{
-		throw std::runtime_error("Failed to initialize GLFW");
+		mWidth = Width;
+		mHeight = Height;
+
+		if (!glfwInit())
+		{
+			throw std::runtime_error("Failed to initialize GLFW");
+		}
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Tell GLFW not to create an OpenGL context
+		mWindow = glfwCreateWindow(mWidth, mHeight, "Vulkan Window", nullptr, nullptr);
+
+
+		if (!mWindow)
+		{
+			glfwTerminate();
+			throw std::runtime_error("glfwcreatewindowfailed");
+		}
+
+		glfwSetWindowUserPointer(mWindow, this);
+		glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
+
 	}
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Tell GLFW not to create an OpenGL context
-	mWindow = glfwCreateWindow(mWidth, mHeight, "Vulkan Window", nullptr, nullptr);
 
-
-	if (!mWindow)
+	Window::~Window()
 	{
-		glfwTerminate();
-		throw std::runtime_error("glfwcreatewindowfailed");
+		if (mWindow)
+		{
+			glfwDestroyWindow(mWindow);
+			glfwTerminate();
+		}
 	}
 
-}
-
-VKFW::Platform::Window::~Window()
-{
-	if (mWindow)
+	bool Window::shouldClose() const
 	{
-		glfwDestroyWindow(mWindow);
-		glfwTerminate();
+		if (mWindow)
+			return glfwWindowShouldClose(mWindow);
 	}
-}
 
-bool VKFW::Platform::Window::shouldClose() const
-{
-	if(mWindow)
-	return glfwWindowShouldClose(mWindow);
-}
-
-void VKFW::Platform::Window::poolEvents()
-{
-	while (!glfwWindowShouldClose(mWindow))
+	void Window::poolEvents()
 	{
-		glfwPollEvents();
+		while (!glfwWindowShouldClose(mWindow))
+		{
+			glfwPollEvents();
+		}
+	}
+
+	void Window::framebuffer_size_callback(GLFWwindow* inWindow, int inWidth, int inHeight)
+	{
+		auto self = reinterpret_cast<Window*>(glfwGetWindowUserPointer(inWindow));
+		self->mWidth = inWidth;
+		self->mHeight = inHeight;
+		self->mOnResize(inWidth, inHeight); //Broadcasting implementation
 	}
 }
