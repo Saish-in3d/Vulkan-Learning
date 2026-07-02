@@ -1,6 +1,7 @@
 #pragma once
 #include "common.h"
 #include "platform/Window.h"
+#include "vulkancore/instance.h"
 
 namespace VKFW {
 	class VulkanApp 
@@ -17,7 +18,8 @@ namespace VKFW {
 
 		void onResize(int w, int h);
 
-		Sharedref<Platform::Window> window;
+		Sharedref<Platform::Window> mwindow;
+		Sharedref<vulkancore::Instance> mInstance;
 
 		int width = 1280;
 		int height = 720;

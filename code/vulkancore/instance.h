@@ -13,6 +13,9 @@ namespace VKFW::vulkancore {
 
 	private:
 
+		std::vector<const char*> getRequiredExtensions();
+		void printAvailableExtensions();
+
 		const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" }; 
 
 		VkInstance mInstance = VK_NULL_HANDLE;

@@ -15,9 +15,9 @@ namespace VKFW
 
 	void VulkanApp::initWindow()
 	{
-		window = MakeSharedRef<Platform::Window>(width, height);
+		mwindow = MakeSharedRef<Platform::Window>(width, height);
 
-		window->setOnResize(
+		mwindow->setOnResize(
 			[this](int w, int h )
 			{
 				this->onResize(w, h);
@@ -28,19 +28,23 @@ namespace VKFW
 
 	void VKFW::VulkanApp::initVulkan()
 	{
+
+		mInstance = MakeSharedRef<vulkancore::Instance>(bool(false));
+
 	}
 
 	void VKFW::VulkanApp::mainLoop()
 	{
-		while (!window->shouldClose())
+		while (!mwindow->shouldClose())
 		{
-			window->poolEvents();
+			mwindow->poolEvents();
 		}
 	}
 
 	void VKFW::VulkanApp::cleanup()
 	{
-		window.reset();
+		mInstance.reset();
+		mwindow.reset();
 	}
 
 
