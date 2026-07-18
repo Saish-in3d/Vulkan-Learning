@@ -13,6 +13,10 @@ namespace VKFW::vulkancore {
 
 	private:
 
+		void setupDebugger();
+
+		bool checkValidationLayerSupport();
+
 		std::vector<const char*> getRequiredExtensions();
 		void printAvailableExtensions();
 
