@@ -2,6 +2,7 @@
 #include "common.h"
 #include "platform/Window.h"
 #include "vulkancore/instance.h"
+#include "vulkancore/WindowSurface.h"
 
 namespace VKFW {
 	class VulkanApp 
@@ -20,6 +21,7 @@ namespace VKFW {
 
 		Sharedref<Platform::Window> mwindow;
 		Sharedref<vulkancore::Instance> mInstance;
+		Sharedref<vulkancore::WindowSurface> mSurface;
 
 		int width = 1280;
 		int height = 720;

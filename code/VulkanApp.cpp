@@ -30,7 +30,7 @@ namespace VKFW
 	{
 
 		mInstance = MakeSharedRef<vulkancore::Instance>(bool(false));
-
+		mSurface = MakeSharedRef<vulkancore::WindowSurface>(mInstance,mwindow);
 	}
 
 	void VKFW::VulkanApp::mainLoop()
@@ -45,6 +45,7 @@ namespace VKFW
 	{
 		mInstance.reset();
 		mwindow.reset();
+		mSurface.reset();
 	}
 
 

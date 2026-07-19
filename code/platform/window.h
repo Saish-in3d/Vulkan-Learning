@@ -11,6 +11,7 @@ namespace VKFW::Platform {
 		bool shouldClose() const;
 		void poolEvents();
 
+		GLFWwindow* GetWindow() const { return mWindow; }
 
 		using ResizeFn = std::function< void (int,int)>;
 		void setOnResize(ResizeFn fn) { mOnResize = std::move(fn); } //Implementing binder function 
