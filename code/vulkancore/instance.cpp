@@ -78,7 +78,7 @@ namespace VKFW::vulkancore {
 		if (mEnableValidationLayer)
 		{
 			ci.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-			ci.ppEnabledExtensionNames = validationLayers.data();
+			ci.ppEnabledLayerNames = validationLayers.data();
 		}
 
 		if (vkCreateInstance(&ci, nullptr, &mInstance) != VK_SUCCESS)

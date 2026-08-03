@@ -14,6 +14,9 @@ namespace VKFW::vulkancore
 		~Device();
 
 		[[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return mPhysicalDevice; } 
+		[[nodiscard]] VkDevice getDevice()const { return mDevice; }
+		[[nodiscard]] VkQueue getGraphicQueue()const { return mGraphicQueue; }
+		[[nodiscard]] VkQueue getPresentQueue()const { return mPresentQueue; }
 
 		[[nodiscard]] std::optional<uint32_t> GetGraphicQueueFamily()const { return mGraphicQueueFamily; }
 		[[nodiscard]] std::optional<uint32_t> GetPresentQueueFamily()const { return mPresentQueueFamily; }
@@ -22,19 +25,22 @@ namespace VKFW::vulkancore
 	private:
 
 		void pickPhysicalDevice();
+		
 
 		void initQueueFamilies(VkPhysicalDevice device);
 		bool isQueFamilyComplete();
+		void createLogicalDevice();
 
 		VkPhysicalDevice mPhysicalDevice{ nullptr };
+		VkDevice mDevice{ VK_NULL_HANDLE };
 
 		Sharedref<Instance> mInstance{ nullptr };
 		Sharedref<WindowSurface> mSurface{ nullptr };
 
 		std::optional<uint32_t> mGraphicQueueFamily;
 		std::optional<uint32_t> mPresentQueueFamily;
-
-		
+		VkQueue mGraphicQueue{ VK_NULL_HANDLE };
+		VkQueue mPresentQueue{ VK_NULL_HANDLE };
 
 
 

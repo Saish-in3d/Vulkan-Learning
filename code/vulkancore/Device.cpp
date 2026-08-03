@@ -5,13 +5,14 @@ VKFW::vulkancore::Device::Device(Sharedref<Instance> instance, Sharedref<WindowS
 {
 	pickPhysicalDevice();
 	initQueueFamilies(mPhysicalDevice);
+	createLogicalDevice();
 
 }
 
 VKFW::vulkancore::Device::~Device()
 {
 
-
+	vkDestroyDevice(mDevice, nullptr);
 }
 
 void VKFW::vulkancore::Device::pickPhysicalDevice()
@@ -126,4 +127,46 @@ void VKFW::vulkancore::Device::initQueueFamilies(VkPhysicalDevice device)
 bool VKFW::vulkancore::Device::isQueFamilyComplete()
 {
 	return mGraphicQueueFamily.has_value() && mPresentQueueFamily.has_value();
+}
+
+void VKFW::vulkancore::Device::createLogicalDevice()
+{
+
+	//getting queue family
+	std::set<uint32_t> uniqueFamilies = {
+		mGraphicQueueFamily.value(),
+		mPresentQueueFamily.value()
+	};
+
+	float priotrity = 1.0f;
+	std::vector<VkDeviceQueueCreateInfo>queueCreateInfos;
+	for (uint32_t family : uniqueFamilies)
+	{
+		VkDeviceQueueCreateInfo createinfo{};
+		createinfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		createinfo.queueFamilyIndex = family;
+		createinfo.queueCount = 1;
+		createinfo.pQueuePriorities = &priotrity;
+		queueCreateInfos.push_back(createinfo);
+	}
+
+	VkPhysicalDeviceFeatures features{};
+	features.samplerAnisotropy = VK_TRUE;
+
+	VkDeviceCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+	createInfo.pQueueCreateInfos = queueCreateInfos.data();
+	createInfo.pEnabledFeatures = &features;
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+	createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+	if (vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice))
+	{
+		throw std::runtime_error("failed to create logical device");
+	}
+
+	vkGetDeviceQueue(mDevice, mGraphicQueueFamily.value(), 0, &mGraphicQueue);
+	vkGetDeviceQueue(mDevice, mPresentQueueFamily.value(), 0, &mPresentQueue);
+
 }
