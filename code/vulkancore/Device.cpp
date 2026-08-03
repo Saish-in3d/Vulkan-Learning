@@ -4,7 +4,7 @@ VKFW::vulkancore::Device::Device(Sharedref<Instance> instance, Sharedref<WindowS
 	:mInstance(instance), mSurface(surface)
 {
 	pickPhysicalDevice();
-
+	initQueueFamilies(mPhysicalDevice);
 
 }
 
@@ -93,4 +93,37 @@ void VKFW::vulkancore::Device::pickPhysicalDevice()
 
 	throw std::runtime_error("no suitable GPU found");
 
+}
+
+void VKFW::vulkancore::Device::initQueueFamilies(VkPhysicalDevice device)
+{
+	uint32_t count = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &count, nullptr);
+	std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &count, queueFamilyProperties.data());
+
+	for (int i = 0; i < count; i++)
+	{
+		if (queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		{
+			mGraphicQueueFamily = i;
+		}
+
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, mSurface->GetSurface(), &presentSupport);
+		if (presentSupport)
+		{
+			mPresentQueueFamily = i;
+		}
+	}
+
+	if (!isQueFamilyComplete())
+	{
+		throw std::runtime_error("queue familes incomplete");
+	}
+}
+
+bool VKFW::vulkancore::Device::isQueFamilyComplete()
+{
+	return mGraphicQueueFamily.has_value() && mPresentQueueFamily.has_value();
 }

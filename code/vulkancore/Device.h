@@ -14,16 +14,27 @@ namespace VKFW::vulkancore
 		~Device();
 
 		[[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return mPhysicalDevice; } 
+
+		[[nodiscard]] std::optional<uint32_t> GetGraphicQueueFamily()const { return mGraphicQueueFamily; }
+		[[nodiscard]] std::optional<uint32_t> GetPresentQueueFamily()const { return mPresentQueueFamily; }
 		
 
 	private:
 
 		void pickPhysicalDevice();
 
+		void initQueueFamilies(VkPhysicalDevice device);
+		bool isQueFamilyComplete();
+
 		VkPhysicalDevice mPhysicalDevice{ nullptr };
 
 		Sharedref<Instance> mInstance{ nullptr };
 		Sharedref<WindowSurface> mSurface{ nullptr };
+
+		std::optional<uint32_t> mGraphicQueueFamily;
+		std::optional<uint32_t> mPresentQueueFamily;
+
+		
 
 
 
