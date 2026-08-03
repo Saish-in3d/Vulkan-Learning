@@ -3,6 +3,7 @@
 #include "platform/Window.h"
 #include "vulkancore/instance.h"
 #include "vulkancore/WindowSurface.h"
+#include "vulkancore/Device.h"
 
 namespace VKFW {
 	class VulkanApp 

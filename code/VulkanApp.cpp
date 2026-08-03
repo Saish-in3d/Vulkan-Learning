@@ -31,6 +31,8 @@ namespace VKFW
 
 		mInstance = MakeSharedRef<vulkancore::Instance>(bool(false));
 		mSurface = MakeSharedRef<vulkancore::WindowSurface>(mInstance,mwindow);
+
+		auto testDevice = MakeSharedRef<vulkancore::Device>(mInstance,mSurface);
 	}
 
 	void VKFW::VulkanApp::mainLoop()
