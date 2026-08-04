@@ -28,17 +28,18 @@ namespace VKFW::vulkancore {
 			return VK_ERROR_EXTENSION_NOT_PRESENT;
 	}
 
-	static VkResult DestroyDebugUtilsMessengerEXT(
+	static void DestroyDebugUtilsMessengerEXT(
 		VkInstance instance,
 		VkDebugUtilsMessengerEXT debugMessenger,
 		const VkAllocationCallbacks* pAllocator
 	)
 	{
-		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestoryDebugUtilsMessengerEXT");
+		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 		if(func)
 		{
 			func(instance, debugMessenger, pAllocator);
 		}
+		
 	}
 	
 
@@ -94,7 +95,7 @@ namespace VKFW::vulkancore {
 	{
 		if (mEnableValidationLayer)
 		{
-			//DestroyDebugUtilsMessengerEXT(mInstance, mDebugger, nullptr);
+			DestroyDebugUtilsMessengerEXT(mInstance, mDebugger, nullptr);
 		}
 		vkDestroyInstance(mInstance, nullptr);
 	}

@@ -1,5 +1,5 @@
 file(GLOB_RECURSE VULKANCORE ./*.cpp)
-add_library(vulkancoreLib ${VULKANCORE}) 
+add_library(vulkancoreLib ${VULKANCORE} "Commandpool.h" "Commandpool.cpp") 
 #Saving
 add_library(
     Device.cpp
@@ -9,4 +9,4 @@ add_library(
     WindowSurface.cpp
     WindowSurface.h
     vk_common.h
-)
+ Commandpool.h Commandpool.cpp)

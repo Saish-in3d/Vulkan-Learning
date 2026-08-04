@@ -32,7 +32,9 @@ namespace VKFW
 		mInstance = MakeSharedRef<vulkancore::Instance>(bool(true));
 		mSurface = MakeSharedRef<vulkancore::WindowSurface>(mInstance,mwindow);
 
-		auto testDevice = MakeSharedRef<vulkancore::Device>(mInstance,mSurface);
+		mDevice = MakeSharedRef<vulkancore::Device>(mInstance,mSurface);
+		mCommandPool = MakeSharedRef<vulkancore::CommandPool>(mDevice);
+
 	}
 
 	void VKFW::VulkanApp::mainLoop()
@@ -45,9 +47,11 @@ namespace VKFW
 
 	void VKFW::VulkanApp::cleanup()
 	{
+		mCommandPool.reset();
+		mDevice.reset();
+		mSurface.reset();
 		mInstance.reset();
 		mwindow.reset();
-		mSurface.reset();
 	}
 
 
