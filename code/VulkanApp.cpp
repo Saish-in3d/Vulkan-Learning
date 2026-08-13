@@ -35,6 +35,7 @@ namespace VKFW
 		mDevice = MakeSharedRef<vulkancore::Device>(mInstance,mSurface);
 		mCommandPool = MakeSharedRef<vulkancore::CommandPool>(mDevice);
 
+		mSwapChain = MakeSharedRef<vulkancore::SwapChain>(mDevice,mwindow,mSurface);
 	}
 
 	void VKFW::VulkanApp::mainLoop()
