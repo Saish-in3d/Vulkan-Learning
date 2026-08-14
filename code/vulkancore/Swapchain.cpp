@@ -77,10 +77,32 @@ namespace VKFW::vulkancore {
 		std::cout << "SwapChainCreated: " << format.format << " Images count: " << mImageCount
 			<< " Extent: " << extent.width << " x" << extent.height << std::endl;
 
+
+		mSwapChainImageViews.resize(mImageCount);
+		for (size_t i = 0; i < mImageCount; i++)
+		{
+			mSwapChainImageViews[i] = createImageView(mSwapChainImages[i], mSwapChainFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+		}
+
 	}
 
 	SwapChain::~SwapChain()
 	{
+		for (auto fb : mSwapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(mDevice->getDevice(), fb, nullptr);
+		}
+
+		for (auto iv : mSwapChainImageViews)
+		{
+			vkDestroyImageView(mDevice->getDevice(), iv, nullptr);
+		}
+
+		if (mSwapChain != VK_NULL_HANDLE)
+		{
+			vkDestroySwapchainKHR(mDevice->getDevice(), mSwapChain, nullptr);
+		}
+
 	}
 
 	void SwapChain::createFrameBuffers(const Sharedref<renderpass>& renderPass)
@@ -161,7 +183,26 @@ namespace VKFW::vulkancore {
 
 	VkImageView SwapChain::createImageView(VkImage image, VkFormat foarmat, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
 	{
-		return VkImageView();
+		VkImageViewCreateInfo ci{};
+		ci.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		ci.format = foarmat;
+		ci.image = image;
+		ci.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		
+		ci.subresourceRange.aspectMask = aspectFlags;
+		ci.subresourceRange.baseMipLevel = 0;
+		ci.subresourceRange.levelCount = mipLevels;
+		ci.subresourceRange.baseArrayLayer = 0;
+		ci.subresourceRange.layerCount = 1;
+
+		VkImageView view{VK_NULL_HANDLE};
+		if (vkCreateImageView(mDevice->getDevice(), &ci, nullptr, &view) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create image");
+		}
+
+		return view;
+
 	}
 
 }
