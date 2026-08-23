@@ -7,7 +7,7 @@
 
 namespace VKFW::vulkancore {
 
-	class renderpass; //forward declaration
+	class RenderPass; //forward declaration
 
 }
 
@@ -32,7 +32,7 @@ namespace VKFW::vulkancore {
 		~SwapChain();
 
 
-		void createFrameBuffers(const Sharedref<renderpass>& renderPass);
+		void createFrameBuffers(const Sharedref<RenderPass>& renderPass);
 
 		SwapChainSupportInfo querySwapChainSupportInfo();
 		VkSurfaceFormatKHR chooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR> formats);

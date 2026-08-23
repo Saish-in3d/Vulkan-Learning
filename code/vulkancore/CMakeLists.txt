@@ -1,5 +1,5 @@
 file(GLOB_RECURSE VULKANCORE ./*.cpp)
-add_library(vulkancoreLib ${VULKANCORE} "Commandpool.h" "Commandpool.cpp" "Swapchain.h" "Swapchain.cpp") 
+add_library(vulkancoreLib ${VULKANCORE} "Commandpool.h" "Commandpool.cpp" "Swapchain.h" "Swapchain.cpp" "RenderPass.h" "RenderPass.cpp") 
 #Saving
 add_library(
     Device.cpp
@@ -12,4 +12,4 @@ add_library(
     Commandpool.h
     Commandpool.cpp 
     Swapchain.h
- "Swapchain.cpp")
+ Swapchain.cpp RenderPass.h RenderPass.cpp)

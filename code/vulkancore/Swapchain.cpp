@@ -1,4 +1,5 @@
-#include "SwapCHAIN.h"
+#include "Swapchain.h"
+#include "RenderPass.h"
 #include <algorithm>
 
 
@@ -105,8 +106,32 @@ namespace VKFW::vulkancore {
 
 	}
 
-	void SwapChain::createFrameBuffers(const Sharedref<renderpass>& renderPass)
+	void SwapChain::createFrameBuffers(const Sharedref<RenderPass>& renderPass)
 	{
+		mSwapChainFramebuffers.resize(mImageCount);
+		for (int i = 0; i < mImageCount; i++)
+		{
+			std::array<VkImageView, 1> attachments = { mSwapChainImageViews[i] };
+
+			VkFramebufferCreateInfo ci{};
+			ci.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			ci.renderPass = renderPass->getRenderPass();
+			ci.attachmentCount = static_cast<uint32_t>(attachments.size());
+			ci.pAttachments = attachments.data();
+			ci.width = mSwapChainExtent.width;
+			ci.height = mSwapChainExtent.height;
+			ci.layers = 1;
+
+			if (vkCreateFramebuffer(mDevice->getDevice(), &ci, nullptr, &mSwapChainFramebuffers[i]) != VK_SUCCESS)
+			{
+				throw std::runtime_error("failed to create frame buffer");
+			}
+			
+		}
+		std::cout << "framebuffers created: " << mImageCount << std::endl;
+		
+
+
 	}
 
 	SwapChainSupportInfo SwapChain::querySwapChainSupportInfo()

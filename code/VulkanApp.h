@@ -6,6 +6,7 @@
 #include "vulkancore/Device.h"
 #include "vulkancore/Commandpool.h"
 #include "vulkancore/SwapChain.h"
+#include "vulkancore/RenderPass.h"
 
 namespace VKFW {
 	class VulkanApp 
@@ -20,6 +21,8 @@ namespace VKFW {
 		void mainLoop();
 		void cleanup();
 
+		Sharedref<vulkancore::RenderPass> createRenderPass();
+
 		void onResize(int w, int h);
 
 		Sharedref<Platform::Window> mwindow{nullptr};
@@ -28,6 +31,7 @@ namespace VKFW {
 		Sharedref<vulkancore::Device> mDevice{ nullptr };
 		Sharedref<vulkancore::CommandPool> mCommandPool{ nullptr };
 		Sharedref<vulkancore::SwapChain> mSwapChain{ nullptr };
+		Sharedref<vulkancore::RenderPass> mRenderPass{ nullptr };
 
 		int width = 1280;
 		int height = 720;
