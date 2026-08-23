@@ -44,7 +44,7 @@ namespace VKFW::Platform
 
 	void Window::poolEvents()
 	{
-		while (!glfwWindowShouldClose(mWindow))
+		//while (!glfwWindowShouldClose(mWindow))
 		{
 			glfwPollEvents();
 		}

@@ -47,11 +47,15 @@ namespace VKFW
 		while (!mwindow->shouldClose())
 		{
 			mwindow->poolEvents();
+			drawFrame();
 		}
+		vkDeviceWaitIdle(mDevice->getDevice());
 	}
 
 	void VKFW::VulkanApp::cleanup()
 	{
+		mRenderPass.reset();    
+		mSwapChain.reset();
 		mCommandPool.reset();
 		mDevice.reset();
 		mSurface.reset();
@@ -94,6 +98,63 @@ namespace VKFW
 
 
 		return rp;
+	}
+
+	void VulkanApp::drawFrame()
+	{
+		uint32_t imageIndex = 0;
+
+		vkAcquireNextImageKHR(mDevice->getDevice(), mSwapChain->getSwapChain(), UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &imageIndex);
+		VkCommandBufferAllocateInfo allocinfo{};
+		allocinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocinfo.commandPool = mCommandPool->getCommandPool();
+		allocinfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocinfo.commandBufferCount = 1;
+		//std::cout << "Acquire: " << imageIndex << "\n";
+		VkCommandBuffer cmd;
+		vkAllocateCommandBuffers(mDevice->getDevice(), &allocinfo, &cmd);
+
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		vkBeginCommandBuffer(cmd, &beginInfo);
+
+		VkClearValue clearColor{};
+		clearColor.color = { 0.0f, 0.2f,0.4f,1.0f };
+		VkRenderPassBeginInfo rpInfo{};
+		rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		rpInfo.renderPass = mRenderPass->getRenderPass();
+		rpInfo.framebuffer = mSwapChain->getSwapChainFramebuffers()[imageIndex];
+		rpInfo.renderArea.offset = { 0,0 };
+		rpInfo.renderArea.extent = mSwapChain->getSwapChainExtent();
+		rpInfo.clearValueCount = 1;
+		rpInfo.pClearValues = &clearColor;
+
+		vkCmdBeginRenderPass(cmd, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
+		//doing nothing here
+		vkCmdEndRenderPass(cmd);
+		vkEndCommandBuffer(cmd);
+
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &cmd;
+
+		vkQueueSubmit(mDevice->getGraphicQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+
+		vkQueueWaitIdle(mDevice->getGraphicQueue());
+
+		vkFreeCommandBuffers(mDevice->getDevice(), mCommandPool->getCommandPool(), 1, &cmd);
+
+		VkPresentInfoKHR presentInfo{};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.swapchainCount = 1;
+		VkSwapchainKHR sc = mSwapChain->getSwapChain();
+		presentInfo.pSwapchains = &sc;
+		presentInfo.pImageIndices = &imageIndex;
+		
+		vkQueuePresentKHR(mDevice->getPresentQueue(), &presentInfo);
+		
 	}
 
 

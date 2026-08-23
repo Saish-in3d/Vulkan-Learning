@@ -23,6 +23,8 @@ namespace VKFW {
 
 		Sharedref<vulkancore::RenderPass> createRenderPass();
 
+		void drawFrame();
+
 		void onResize(int w, int h);
 
 		Sharedref<Platform::Window> mwindow{nullptr};
