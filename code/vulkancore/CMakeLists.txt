@@ -12,4 +12,10 @@ add_library(
     Commandpool.h
     Commandpool.cpp 
     Swapchain.h
- Swapchain.cpp RenderPass.h RenderPass.cpp)
+ Swapchain.cpp
+ RenderPass.h 
+ RenderPass.cpp
+  Shader.h 
+ Shader.cpp
+
+)
