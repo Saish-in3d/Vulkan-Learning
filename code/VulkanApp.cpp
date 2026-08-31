@@ -40,6 +40,9 @@ namespace VKFW
 		mRenderPass = createRenderPass();
 		mSwapChain->createFrameBuffers(mRenderPass);
 
+		mPipeline = createPipeline();
+		recordCommandBuffers();
+
 	}
 
 	void VKFW::VulkanApp::mainLoop()
@@ -107,14 +110,18 @@ namespace VKFW
 		auto pipeline = MakeSharedRef<vulkancore::Pipeline>(mDevice, mRenderPass);
 
 		// === Shaders ===
-		// spv files compiled by CMake and copied to exe/spvs/
+		// spv files compiled by CMake and copied to exe/spv/
 		// entry point is "main" — Slang renames vertMain/fragMain to main in SPIR-V
+		const auto shaderDir = exeDir() / "spv";
+
 		auto vertShader = MakeSharedRef<vulkancore::Shader>(
-			mDevice, "spvs/test_vert.spv",
+			mDevice, (shaderDir / "test_vert.spv").string(),
 			VK_SHADER_STAGE_VERTEX_BIT, "main");
+
 		auto fragShader = MakeSharedRef<vulkancore::Shader>(
-			mDevice, "spvs/test_frag.spv",
+			mDevice, (shaderDir / "test_frag.spv").string(),
 			VK_SHADER_STAGE_FRAGMENT_BIT, "main");
+
 		pipeline->setShaderGroup({ vertShader, fragShader });
 
 		// === Chapter 1: VertexInput — empty (no VBO, hardcoded in shader) ===
@@ -207,35 +214,8 @@ namespace VKFW
 
 		vkAcquireNextImageKHR(mDevice->getDevice(), mSwapChain->getSwapChain(),
 			UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &imageIndex);
-		VkCommandBufferAllocateInfo allocinfo{};
-		allocinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocinfo.commandPool = mCommandPool->getCommandPool();
-		allocinfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocinfo.commandBufferCount = 1;
-		//std::cout << "Acquire: " << imageIndex << "\n";
-		VkCommandBuffer cmd;
-		vkAllocateCommandBuffers(mDevice->getDevice(), &allocinfo, &cmd);
-
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		vkBeginCommandBuffer(cmd, &beginInfo);
-
-		VkClearValue clearColor{};
-		clearColor.color = { 0.0f, 0.2f,0.4f,1.0f };
-		VkRenderPassBeginInfo rpInfo{};
-		rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		rpInfo.renderPass = mRenderPass->getRenderPass();
-		rpInfo.framebuffer = mSwapChain->getSwapChainFramebuffers()[imageIndex];
-		rpInfo.renderArea.offset = { 0,0 };
-		rpInfo.renderArea.extent = mSwapChain->getSwapChainExtent();
-		rpInfo.clearValueCount = 1;
-		rpInfo.pClearValues = &clearColor;
-
-		vkCmdBeginRenderPass(cmd, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
-		//doing nothing here
-		vkCmdEndRenderPass(cmd);
-		vkEndCommandBuffer(cmd);
+		
+		VkCommandBuffer cmd = mCommandBuffers[imageIndex]->getCommandBuffer();
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -246,7 +226,7 @@ namespace VKFW
 
 		vkQueueWaitIdle(mDevice->getGraphicQueue());
 
-		vkFreeCommandBuffers(mDevice->getDevice(), mCommandPool->getCommandPool(), 1, &cmd);
+		//vkFreeCommandBuffers(mDevice->getDevice(), mCommandPool->getCommandPool(), 1, &cmd);
 
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -257,6 +237,60 @@ namespace VKFW
 		
 		vkQueuePresentKHR(mDevice->getPresentQueue(), &presentInfo);
 		
+	}
+
+	void VulkanApp::recordCommandBuffers()
+	{
+
+		auto framebuffers = mSwapChain->getSwapChainFramebuffers();
+		auto extent = mSwapChain->getSwapChainExtent();
+		auto count = mSwapChain->getImageCount();
+
+		mCommandBuffers.resize(count);
+		for (uint32_t i = 0; i < count; i++)
+		{
+			mCommandBuffers[i] = MakeSharedRef<vulkancore::CommandBuffer>(mDevice, mCommandPool);
+
+			//COMMANDbuffer recording starts here
+			mCommandBuffers[i]->beginCommandBuffer();
+			VkClearValue clearColor{};
+			clearColor.color = { 0.0f, 0.2f,0.4f,1.0f };
+
+			VkRenderPassBeginInfo rpInfo{};
+			rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			rpInfo.renderPass = mRenderPass->getRenderPass();
+			rpInfo.framebuffer = mSwapChain->getSwapChainFramebuffers()[i];
+			rpInfo.renderArea.offset = { 0,0 };
+			rpInfo.renderArea.extent = mSwapChain->getSwapChainExtent();
+			rpInfo.clearValueCount = 1;
+			rpInfo.pClearValues = &clearColor;
+
+			mCommandBuffers[i]->beginRenderPass(rpInfo);
+
+			//Binding graphics pipeline
+			mCommandBuffers[i]->bindGraphicPipeline(mPipeline);
+
+			VkViewport viewport{};
+			viewport.x = 0.f;
+			viewport.y = static_cast<float>(extent.height); //(fLIPING THE VIEWPORT as per vulkan)
+			viewport.width = static_cast<float>(extent.width);
+			viewport.height = -static_cast<float>(extent.height);
+			viewport.minDepth = 0.f;
+			viewport.maxDepth = 0.f;
+			vkCmdSetViewport(mCommandBuffers[i]->getCommandBuffer(), 0, 1, &viewport);
+
+			VkRect2D scissor{};
+			scissor.offset = { 0,0 };
+			scissor.extent = extent;
+
+			vkCmdSetScissor(mCommandBuffers[i]->getCommandBuffer(), 0, 1, &scissor);
+
+			mCommandBuffers[i]->draw(3);
+			mCommandBuffers[i]->endRenderPass();
+			mCommandBuffers[i]->endCommandBuffer();
+		}
+		
+
 	}
 
 

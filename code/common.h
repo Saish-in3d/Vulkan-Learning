@@ -4,6 +4,8 @@
 #include <iostream>
 #include <memory> // For smart pointers
 #include <utility>
+#include <filesystem>
+#include <windows.h>
 
 
 //GLM block //gLM Follows opengl convenion for depth range, which is [-1, 1], we need [0, 1] for Vulkan.

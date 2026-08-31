@@ -17,12 +17,13 @@ namespace VKFW::vulkancore {
         void createShaderModule(const std::string& fileName);
 
         // Read the binary file and return the contents as a vector of chars
-        static std::vector<char> readBinary(const std::string& fileName) \
+        static std::vector<char> readBinary(const std::string& fileName) 
         {
             std::ifstream file(fileName.c_str(), std::ios::ate | std::ios::binary | std::ios::in);
             if (!file.is_open())
             {
-                throw std::runtime_error("failed to open shader file!");
+                throw std::runtime_error(
+                    "failed to open: " + std::filesystem::absolute(fileName).string());
             }
             const size_t fileSize = (size_t)file.tellg();
             std::vector<char> buffer(fileSize);

@@ -46,11 +46,14 @@ add_custom_command( #runs a custom command just like we would have don in cmd or
 endfunction()
 
 FILE(GLOB SLANG_FILES ${SHADER_SRC_DIR}/*.slang) #find all .slang files in the shader source directory and store them in the SLANG_FILES variable
+message(STATUS "Shader directory: ${SHADER_SRC_DIR}")
+message(STATUS "Slang compiler: ${SLANGC}") 
+message(STATUS "Slang files: ${SLANG_FILES}")
 
 foreach(SLANG_FILE ${SLANG_FILES})
 
 	#getting fine name without extension
-	get_filename_component(FILE_NAME, ${SLANG_FILE} NAME_WE)
+	get_filename_component(FILE_NAME ${SLANG_FILE} NAME_WE)
 
 	#setting output vertex shader file name
 	set(VERT_SPV ${SHADER_OUTPUT_DIR}/${FILE_NAME}_vert.spv)
@@ -85,5 +88,5 @@ add_dependencies(VulkanFramework Shaders) #add_dependencies(A B): Make sure targ
 add_custom_command(TARGET VulkanFramework POST_BUILD #Runs after executable finishes building.
 COMMAND ${CMAKE_COMMAND} -E copy_directory #Uses CMake's portable copy command.
 ${SHADER_OUTPUT_DIR} #Source
-$<TARGET_FILE_DIR:VulkanFramework>/spvsc #Destination
+$<TARGET_FILE_DIR:VulkanFramework>/spv #Destination
 )

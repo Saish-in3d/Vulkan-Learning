@@ -8,6 +8,7 @@
 #include "vulkancore/SwapChain.h"
 #include "vulkancore/RenderPass.h"
 #include "vulkancore/Pipeline.h"
+#include "vulkancore/Commandbuffer.h"
 
 namespace VKFW {
 	class VulkanApp 
@@ -28,6 +29,8 @@ namespace VKFW {
 
 		void drawFrame();
 
+		void recordCommandBuffers();
+
 		void onResize(int w, int h);
 
 		Sharedref<Platform::Window> mwindow{nullptr};
@@ -37,11 +40,22 @@ namespace VKFW {
 		Sharedref<vulkancore::CommandPool> mCommandPool{ nullptr };
 		Sharedref<vulkancore::SwapChain> mSwapChain{ nullptr };
 		Sharedref<vulkancore::RenderPass> mRenderPass{ nullptr };
+		Sharedref<vulkancore::Pipeline> mPipeline{ nullptr };
+		
+		std::vector< Sharedref<vulkancore::CommandBuffer>>mCommandBuffers;
 
 		int width = 1280;
 		int height = 720;
 
 		bool mFrameBufferResized = false;
+
+
+		inline std::filesystem::path exeDir()
+		{
+			wchar_t buf[MAX_PATH];
+			GetModuleFileNameW(nullptr, buf, MAX_PATH);
+			return std::filesystem::path(buf).parent_path();
+		}
 
 	};
 }
