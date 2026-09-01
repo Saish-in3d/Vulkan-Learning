@@ -9,6 +9,7 @@
 #include "vulkancore/RenderPass.h"
 #include "vulkancore/Pipeline.h"
 #include "vulkancore/Commandbuffer.h"
+#include "factories/RenderPassFactory.h"
 
 namespace VKFW {
 	class VulkanApp 
@@ -23,7 +24,6 @@ namespace VKFW {
 		void mainLoop();
 		void cleanup();
 
-		Sharedref<vulkancore::RenderPass> createRenderPass();
 
 		Sharedref<vulkancore::Pipeline> VulkanApp::createPipeline();
 
