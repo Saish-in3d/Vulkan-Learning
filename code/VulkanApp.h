@@ -10,6 +10,8 @@
 #include "vulkancore/Pipeline.h"
 #include "vulkancore/Commandbuffer.h"
 #include "factories/RenderPassFactory.h"
+#include "vulkancore/Semaphore.h"
+#include "vulkancore/Fence.h"
 
 namespace VKFW {
 	class VulkanApp 
@@ -33,6 +35,8 @@ namespace VKFW {
 
 		void onResize(int w, int h);
 
+		void createSyncObjects();
+
 		Sharedref<Platform::Window> mwindow{nullptr};
 		Sharedref<vulkancore::Instance> mInstance{ nullptr };
 		Sharedref<vulkancore::WindowSurface> mSurface{ nullptr };
@@ -41,6 +45,12 @@ namespace VKFW {
 		Sharedref<vulkancore::SwapChain> mSwapChain{ nullptr };
 		Sharedref<vulkancore::RenderPass> mRenderPass{ nullptr };
 		Sharedref<vulkancore::Pipeline> mPipeline{ nullptr };
+
+
+		std::vector<Sharedref<vulkancore::Semaphore>> mImageAvailableSemaphores{};
+		std::vector<Sharedref<vulkancore::Semaphore>> mRenderFinishedSemaphores{};
+		std::vector<Sharedref<vulkancore::Fence>>     mFences{};
+		uint32_t mCurrentFrame{ 0 };
 		
 		std::vector< Sharedref<vulkancore::CommandBuffer>>mCommandBuffers;
 

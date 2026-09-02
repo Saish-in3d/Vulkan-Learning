@@ -8,6 +8,7 @@ namespace VKFW
 	{
 		initWindow();
 		initVulkan();
+		createSyncObjects();
 		mainLoop();
 		cleanup();
 
@@ -172,32 +173,68 @@ namespace VKFW
 
 	void VulkanApp::drawFrame()
 	{
+
+		mFences[mCurrentFrame]->waitForFence();
+
 		uint32_t imageIndex = 0;
 
-		vkAcquireNextImageKHR(mDevice->getDevice(), mSwapChain->getSwapChain(),
-			UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &imageIndex);
+		VkResult Result =  vkAcquireNextImageKHR(
+			mDevice->getDevice(),
+			mSwapChain->getSwapChain(),
+			UINT64_MAX,
+			mImageAvailableSemaphores[mCurrentFrame]->getSemaphore(),
+			VK_NULL_HANDLE,
+			&imageIndex);
+
+		if (Result != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to acquire next swapchain image");
+		}
+
+		mFences[mCurrentFrame]->resetFence();
 		
 		VkCommandBuffer cmd = mCommandBuffers[imageIndex]->getCommandBuffer();
 
+		VkSemaphore waitSemaphores[] =  { mImageAvailableSemaphores[mCurrentFrame]->getSemaphore() };
+
+		VkSemaphore signalSemaphores[] =  { mRenderFinishedSemaphores[mCurrentFrame]->getSemaphore() };
+
+		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &cmd;
+		submitInfo.pWaitDstStageMask = waitStages;
 
-		vkQueueSubmit(mDevice->getGraphicQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-
-		vkQueueWaitIdle(mDevice->getGraphicQueue());
-
-		//vkFreeCommandBuffers(mDevice->getDevice(), mCommandPool->getCommandPool(), 1, &cmd);
+		Result = vkQueueSubmit(mDevice->getGraphicQueue(), 1, &submitInfo, mFences[mCurrentFrame]->getFence());
+		if (Result != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to vkQueueSubmit");
+		}
 
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.swapchainCount = 1;
 		VkSwapchainKHR sc = mSwapChain->getSwapChain();
 		presentInfo.pSwapchains = &sc;
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = signalSemaphores;
 		presentInfo.pImageIndices = &imageIndex;
 		
-		vkQueuePresentKHR(mDevice->getPresentQueue(), &presentInfo);
+		Result = vkQueuePresentKHR(mDevice->getPresentQueue(), &presentInfo);
+		if (Result != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to vkQueuePresentKHR");
+		}
+
+		mCurrentFrame = (mCurrentFrame + 1) % mSwapChain->getImageCount();
+
 		
 	}
 
@@ -264,6 +301,24 @@ namespace VKFW
 		mFrameBufferResized = true;
 		std::cout << "Resized" << w << "x" << h << "y"<<std::endl;
 		//Vulkan implementation on resize
+
+	}
+	void VulkanApp::createSyncObjects()
+	{
+		const uint32_t count = mSwapChain->getImageCount();
+		mImageAvailableSemaphores.clear();
+		mRenderFinishedSemaphores.clear();
+		mFences.clear();
+
+		for (uint32_t i = 0; i < count; i++) {
+			mImageAvailableSemaphores.push_back(
+				MakeSharedRef<vulkancore::Semaphore>(mDevice));
+			mRenderFinishedSemaphores.push_back(
+				MakeSharedRef<vulkancore::Semaphore>(mDevice));
+			mFences.push_back(
+				MakeSharedRef<vulkancore::Fence>(mDevice, true));  // signaled=true to avoid initial deadlock
+		}
+
 
 	}
 }
