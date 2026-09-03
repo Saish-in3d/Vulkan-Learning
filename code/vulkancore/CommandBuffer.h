@@ -24,6 +24,12 @@ namespace VKFW::vulkancore {
         void draw(uint32_t vertexCount);
 
 
+        void copyBufferToBuffer(const VkBuffer& src, const VkBuffer& dst,
+            uint32_t count,
+            const std::vector<VkBufferCopy>& regions);
+        void submitCommandBuffer(VkQueue queue);
+        void waitCommandBuffer(VkQueue queue);
+
     private:
         VkCommandBuffer    mCommandBuffer{ VK_NULL_HANDLE };
         Sharedref<CommandPool>   mCommandPool{ nullptr };

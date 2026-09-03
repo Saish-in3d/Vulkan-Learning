@@ -55,4 +55,24 @@ namespace VKFW::vulkancore {
         vkCmdDraw(mCommandBuffer, vertexCount, 1, 0, 0);
     }
 
+    void CommandBuffer::copyBufferToBuffer(
+        const VkBuffer& src, const VkBuffer& dst,
+        uint32_t count,
+        const std::vector<VkBufferCopy>& regions)
+    {
+        vkCmdCopyBuffer(mCommandBuffer, src, dst, count, regions.data());
+    }
+
+    void CommandBuffer::submitCommandBuffer(VkQueue queue) {
+        VkSubmitInfo si{};
+        si.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        si.commandBufferCount = 1;
+        si.pCommandBuffers = &mCommandBuffer;
+        vkQueueSubmit(queue, 1, &si, VK_NULL_HANDLE);
+    }
+
+    void CommandBuffer::waitCommandBuffer(VkQueue queue) {
+        vkQueueWaitIdle(queue);
+    }
+
 }
