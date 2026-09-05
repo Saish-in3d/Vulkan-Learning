@@ -1,5 +1,19 @@
 #include "VulkanApp.h"
 
+struct Vertex
+{
+	float pos[2];
+	float color[3];
+};
+
+static const std::vector<Vertex> Vertices =
+{
+	{{0.0f,-0.5f}, {1.0f,0.0f,0.0f,} },
+	{{0.5f,0.5f}, {0.0f,1.0f,0.0f,} },
+	{{-0.5f,0.5f}, {0.0f,0.0f,1.0f,} },
+};
+
+
 
 namespace VKFW
 {
@@ -41,8 +55,12 @@ namespace VKFW
 		mRenderPass = factories::RenderPassFactory::CreateSimpleRenderPass(mDevice,mSwapChain->getSwapChainImageFormat());
 		mSwapChain->createFrameBuffers(mRenderPass);
 
+		mVertexBuffer = vulkancore::DataBuffer::createVertexBuffer(mDevice, sizeof(Vertex) * Vertices.size(), (void*)Vertices.data());
+
 		mPipeline = createPipeline();
 		recordCommandBuffers();
+
+		
 
 	}
 
@@ -87,12 +105,36 @@ namespace VKFW
 
 		pipeline->setShaderGroup({ vertShader, fragShader });
 
-		// === Chapter 1: VertexInput — empty (no VBO, hardcoded in shader) ===
-		// TODO L11: add binding descriptions and attribute descriptions
+
+		VkVertexInputBindingDescription binding{};
+		binding.binding = 0;
+		binding.stride = sizeof(Vertex);
+		binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		
+		VkVertexInputAttributeDescription posAttr{};
+		posAttr.binding = 0;
+		posAttr.location = 0;
+		posAttr.format = VK_FORMAT_R32G32_SFLOAT;
+		posAttr.offset = 0;
+
+		VkVertexInputAttributeDescription  colirAttr{};
+		colirAttr.binding = 0;
+		colirAttr.location = 1;
+		colirAttr.format = VK_FORMAT_R32G32B32_SFLOAT;
+		colirAttr.offset = offsetof(Vertex,color);
+
+		std::vector<VkVertexInputBindingDescription> bindings = { binding };
+
+		std::vector<VkVertexInputAttributeDescription> attributes = { posAttr,colirAttr };
+
+
+		//VBO
 		pipeline->mVertexInputState.sType =
 			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		pipeline->mVertexInputState.vertexBindingDescriptionCount = 0;
-		pipeline->mVertexInputState.vertexAttributeDescriptionCount = 0;
+		pipeline->mVertexInputState.vertexBindingDescriptionCount = static_cast<uint32_t>(bindings.size());
+		pipeline->mVertexInputState.pVertexBindingDescriptions = bindings.data();
+		pipeline->mVertexInputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributes.size());
+		pipeline->mVertexInputState.pVertexAttributeDescriptions = attributes.data();
 
 		// === Chapter 2: InputAssembly — every 3 vertices form one triangle ===
 		pipeline->mAssemblyState.sType =
@@ -264,10 +306,18 @@ namespace VKFW
 			rpInfo.clearValueCount = 1;
 			rpInfo.pClearValues = &clearColor;
 
+			
 			mCommandBuffers[i]->beginRenderPass(rpInfo);
 
 			//Binding graphics pipeline
 			mCommandBuffers[i]->bindGraphicPipeline(mPipeline);
+			
+
+			//Binding vertiex buffer
+			VkBuffer vertexBuffers[] = { mVertexBuffer->getBuffer() };
+			VkDeviceSize offsets[] = { 0 };
+			vkCmdBindVertexBuffers(mCommandBuffers[i]->getCommandBuffer(), 0, 1, vertexBuffers,offsets);
+
 
 			VkViewport viewport{};
 			viewport.x = 0.f;
@@ -284,7 +334,7 @@ namespace VKFW
 
 			vkCmdSetScissor(mCommandBuffers[i]->getCommandBuffer(), 0, 1, &scissor);
 
-			mCommandBuffers[i]->draw(3);
+			mCommandBuffers[i]->draw(Vertices.size());
 			mCommandBuffers[i]->endRenderPass();
 			mCommandBuffers[i]->endCommandBuffer();
 		}

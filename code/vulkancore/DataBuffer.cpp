@@ -34,7 +34,8 @@ namespace VKFW::vulkancore {
         vkBindBufferMemory(mDevice->getDevice(), mBuffer, mMemory, 0);
     }
 
-    DataBuffer::~DataBuffer() {
+    DataBuffer::~DataBuffer() 
+    {
         if (mMemory != VK_NULL_HANDLE)
             vkFreeMemory(mDevice->getDevice(), mMemory, nullptr);
         if (mBuffer != VK_NULL_HANDLE)
@@ -68,19 +69,22 @@ namespace VKFW::vulkancore {
         return buffer;
     }
 
-    void DataBuffer::updateBufferByMap(const void* data, VkDeviceSize size) {
+    void DataBuffer::updateBufferByMap(const void* data, VkDeviceSize size)
+    {
         void* mapped = nullptr;
         vkMapMemory(mDevice->getDevice(), mMemory, 0, size, 0, &mapped);
         memcpy(mapped, data, static_cast<size_t>(size));
         vkUnmapMemory(mDevice->getDevice(), mMemory);
     }
 
-    void DataBuffer::updateBufferByStage(void* data, VkDeviceSize size) {
+    void DataBuffer::updateBufferByStage(void* data, VkDeviceSize size) 
+    {
         auto staging = DataBuffer::createStageBuffer(mDevice, size, data);
         copyBuffer(staging->getBuffer(), mBuffer, size);
     }
 
-    void DataBuffer::copyBuffer(const VkBuffer& src, const VkBuffer& dst, VkDeviceSize size) {
+    void DataBuffer::copyBuffer(const VkBuffer& src, const VkBuffer& dst, VkDeviceSize size)
+    {
         // use a transient pool for one-time transfer commands
         auto pool = MakeSharedRef<CommandPool>(mDevice,
             VK_COMMAND_POOL_CREATE_TRANSIENT_BIT);
@@ -105,9 +109,9 @@ namespace VKFW::vulkancore {
         VkPhysicalDeviceMemoryProperties memProp{};
         vkGetPhysicalDeviceMemoryProperties(device->getPhysicalDevice(), &memProp);
 
-        for (uint32_t i = 0; i < memProp.memoryTypeCount; i++) {
-            if ((typeFilter & (1u << i)) &&
-                (memProp.memoryTypes[i].propertyFlags & properties) == properties)
+        for (uint32_t i = 0; i < memProp.memoryTypeCount; i++) 
+        {
+            if ((typeFilter & (1u << i)) &&(memProp.memoryTypes[i].propertyFlags & properties) == properties)
                 return i;
         }
         throw std::runtime_error("failed to find suitable memory type");

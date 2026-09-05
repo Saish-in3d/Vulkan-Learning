@@ -12,6 +12,7 @@
 #include "factories/RenderPassFactory.h"
 #include "vulkancore/Semaphore.h"
 #include "vulkancore/Fence.h"
+#include "vulkancore/DataBuffer.h"
 
 namespace VKFW {
 	class VulkanApp 
@@ -45,6 +46,7 @@ namespace VKFW {
 		Sharedref<vulkancore::SwapChain> mSwapChain{ nullptr };
 		Sharedref<vulkancore::RenderPass> mRenderPass{ nullptr };
 		Sharedref<vulkancore::Pipeline> mPipeline{ nullptr };
+		Sharedref<vulkancore::DataBuffer> mVertexBuffer{ nullptr };
 
 
 		std::vector<Sharedref<vulkancore::Semaphore>> mImageAvailableSemaphores{};
