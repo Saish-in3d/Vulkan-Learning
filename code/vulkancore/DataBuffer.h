@@ -18,6 +18,9 @@ namespace VKFW::vulkancore {
             VkDeviceSize size,
             void* pData = nullptr);
 
+        static Sharedref<DataBuffer> createUniformBuffer(
+            const Sharedref<Device>& device,
+            VkDeviceSize size);
 
         DataBuffer(const Sharedref<Device>& device,
             VkDeviceSize size,
@@ -30,6 +33,7 @@ namespace VKFW::vulkancore {
 
         [[nodiscard]] VkBuffer getBuffer() const { return mBuffer; }
         [[nodiscard]] VkDeviceMemory getMemory() const { return mMemory; }
+        [[nodiscard]] const VkDescriptorBufferInfo getBufferInfo() const { return mBufferInfo; }
 
     private:
         void copyBuffer(const VkBuffer& src, const VkBuffer& dst, VkDeviceSize size);
@@ -40,6 +44,7 @@ namespace VKFW::vulkancore {
 
         VkBuffer       mBuffer{ VK_NULL_HANDLE };
         VkDeviceMemory mMemory{ VK_NULL_HANDLE };
+        VkDescriptorBufferInfo mBufferInfo { VK_NULL_HANDLE };
         Sharedref<Device>    mDevice{ nullptr };
     };
 

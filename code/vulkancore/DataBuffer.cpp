@@ -32,6 +32,10 @@ namespace VKFW::vulkancore {
             throw std::runtime_error("failed to allocate buffer memory");
 
         vkBindBufferMemory(mDevice->getDevice(), mBuffer, mMemory, 0);
+
+        mBufferInfo.buffer = mBuffer;
+        mBufferInfo.offset = 0;
+        mBufferInfo.range = size;
     }
 
     DataBuffer::~DataBuffer() 
@@ -66,6 +70,13 @@ namespace VKFW::vulkancore {
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         if (pData != nullptr)
             buffer->updateBufferByMap(pData, size);
+        return buffer;
+    }
+
+    Sharedref<DataBuffer> DataBuffer::createUniformBuffer(const Sharedref<Device>& device, VkDeviceSize size)
+    {
+
+        auto buffer = MakeSharedRef<DataBuffer>(device, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         return buffer;
     }
 

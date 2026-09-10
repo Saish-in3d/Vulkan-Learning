@@ -78,10 +78,11 @@ add_custom_target(Shaders ALL DEPENDS ${SPV_FILES}) #ALL: "Build this target aut
 add_subdirectory(platform)
 add_subdirectory(vulkancore)
 add_subdirectory(factories)
+add_subdirectory(renderer)
 
-add_executable(VulkanFramework ${SRC_LIST} ) #"common.h" "VulkanApp.cpp" "platform/window.h" "platform/window.cpp") #produces VulkanFramework.exe
+add_executable(VulkanFramework ${SRC_LIST}  ) #"common.h" "VulkanApp.cpp" "platform/window.h" "platform/window.cpp") #produces VulkanFramework.exe "renderer/render_common.h" "renderer/UniformManager.h" "renderer/UniformManager.cpp"
 #Adding libs to the executable while building
-target_link_libraries(VulkanFramework vulkan-1.lib glfw3.lib platformLib vulkancoreLib factoriesLib) #linking libs to vulkanframework.ece target
+target_link_libraries(VulkanFramework vulkan-1.lib glfw3.lib platformLib vulkancoreLib factoriesLib rendererLib) #linking libs to vulkanframework.ece target
 
 add_dependencies(VulkanFramework Shaders) #add_dependencies(A B): Make sure target B is built before target A
 
