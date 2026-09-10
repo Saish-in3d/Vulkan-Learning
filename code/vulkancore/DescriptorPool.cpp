@@ -13,11 +13,11 @@ namespace VKFW::vulkancore {
 
     void DescriptorPool::build(
         const std::vector<Sharedref<UniformParameter>>& params,
-        int frameCount)
-    {
+        int frameCount) // frames that are submitted but not completed (in rendering state and not available or presenting)
+    {                       // MAX_FRAMES_IN_FLIGHT  amount fixed at begnining
         destroyPool();
 
-        // count UBO descriptors
+        // count UBO descriptors per single frame/image
         uint32_t uboCount = 0;
         for (const auto& p : params)
             if (p->mDescriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
@@ -25,12 +25,13 @@ namespace VKFW::vulkancore {
        
 
         std::vector<VkDescriptorPoolSize> sizes;
+
         if (uboCount > 0) {
             VkDescriptorPoolSize s{};
             s.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            s.descriptorCount = uboCount * frameCount;
+            s.descriptorCount = uboCount * frameCount; // UBO count in one frame * number of inflight frames
             sizes.push_back(s);
-        }
+        }//This is just sizes for UBO, later we wil calculate for other descriptors as well
 
         VkDescriptorPoolCreateInfo ci{};
         ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
