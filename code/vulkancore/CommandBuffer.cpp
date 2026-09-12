@@ -1,3 +1,4 @@
+#include "CommandBuffer.h"
 #include "commandBuffer.h"
 #include <stdexcept>
 
@@ -53,6 +54,21 @@ namespace VKFW::vulkancore {
 
     void CommandBuffer::draw(uint32_t vertexCount) {
         vkCmdDraw(mCommandBuffer, vertexCount, 1, 0, 0);
+    }
+
+    void CommandBuffer::bindDescriptorSets(const Sharedref<Pipeline>& pipeline, VkDescriptorSet descriptorSet)
+    {
+        vkCmdBindDescriptorSets(
+            mCommandBuffer,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            pipeline->getPipelineLayout(),
+            0,
+            1,
+            &descriptorSet,
+            0,
+            nullptr
+        );
+
     }
 
     void CommandBuffer::copyBufferToBuffer(

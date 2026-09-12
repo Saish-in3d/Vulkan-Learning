@@ -55,6 +55,14 @@ namespace VKFW
 		mRenderPass = factories::RenderPassFactory::CreateSimpleRenderPass(mDevice,mSwapChain->getSwapChainImageFormat());
 		mSwapChain->createFrameBuffers(mRenderPass);
 
+		mUniformManager = MakeSharedRef<renderer::UniformManager>();
+		mUniformManager->init(mDevice, mSwapChain->getImageCount());
+		mUniformManager->attachCameraUBO();
+		mUniformManager->attachObjectUBO();
+		mUniformManager->build();
+
+
+
 		mVertexBuffer = vulkancore::DataBuffer::createVertexBuffer(mDevice, sizeof(Vertex) * Vertices.size(), (void*)Vertices.data());
 
 		mPipeline = createPipeline();
@@ -69,6 +77,8 @@ namespace VKFW
 		while (!mwindow->shouldClose())
 		{
 			mwindow->poolEvents();
+			float dt = getFrameTime();
+			updateUBO(dt);
 			drawFrame();
 		}
 		vkDeviceWaitIdle(mDevice->getDevice());
@@ -136,7 +146,7 @@ namespace VKFW
 		pipeline->mVertexInputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributes.size());
 		pipeline->mVertexInputState.pVertexAttributeDescriptions = attributes.data();
 
-		// === Chapter 2: InputAssembly — every 3 vertices form one triangle ===
+		// Configuring InputAssembly: every 3 vertices form one triangle
 		pipeline->mAssemblyState.sType =
 			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		pipeline->mAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -204,10 +214,19 @@ namespace VKFW
 
 		// === Chapter 8: PipelineLayout — empty, no descriptor sets, no push constants ===
 		// TODO L12: add descriptor set layouts for UBO
+		static VkDescriptorSetLayout descriptorlayouts[] = {
+			mUniformManager->getLayout()->getLayout()
+
+		};
+
 		pipeline->mPipelineLayoutInfo.sType =
 			VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipeline->mPipelineLayoutInfo.setLayoutCount = 0;
-		pipeline->mPipelineLayoutInfo.pushConstantRangeCount = 0;
+		pipeline->mPipelineLayoutInfo.setLayoutCount = 1;
+		pipeline->mPipelineLayoutInfo.pSetLayouts = descriptorlayouts;
+
+		
+		/*pipeline->mPipelineLayoutInfo.setLayoutCount = 0;
+		pipeline->mPipelineLayoutInfo.pushConstantRangeCount = 0;*/
 
 		pipeline->build();
 		return pipeline;
@@ -311,6 +330,8 @@ namespace VKFW
 
 			//Binding graphics pipeline
 			mCommandBuffers[i]->bindGraphicPipeline(mPipeline);
+
+			mCommandBuffers[i]->bindDescriptorSets(mPipeline, mUniformManager->getDescriptorSet(i));
 			
 
 			//Binding vertiex buffer
@@ -351,6 +372,36 @@ namespace VKFW
 		mFrameBufferResized = true;
 		std::cout << "Resized" << w << "x" << h << "y"<<std::endl;
 		//Vulkan implementation on resize
+
+	}
+	float VulkanApp::getFrameTime()
+	{
+		double lastTime = 0;
+		double currentTime = glfwGetTime();
+		float deltaTime = static_cast<float>(currentTime - lastTime);
+		lastTime = currentTime;
+		return deltaTime;
+
+	}
+	void VulkanApp::updateUBO(float dt)
+	{
+		mRotatiom = dt * glm::radians(45.f);
+		ObjectUBO obj{};
+		obj.model = glm::rotate(glm::mat4(1.f), mRotatiom, glm::vec3(0.f,0.f,1.f));
+
+		mUniformManager->updateObjectUBO(obj,mCurrentFrame);
+
+		CameraUBO cam{};
+		cam.view = glm::lookAt(
+			glm::vec3(0.0f, 0.0f, 2.0f),
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f)
+		);
+
+		float aspect = static_cast<float>(width / height);
+		cam.proj = glm::perspective(glm::radians(45.f),aspect,0.1f,100.f);
+
+		mUniformManager->updateCameraUBO(cam, mCurrentFrame);
 
 	}
 	void VulkanApp::createSyncObjects()

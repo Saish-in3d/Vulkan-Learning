@@ -23,6 +23,7 @@ namespace VKFW::vulkancore {
         void bindGraphicPipeline(const Sharedref<Pipeline>& pipeline);
         void draw(uint32_t vertexCount);
 
+        void bindDescriptorSets(const Sharedref<Pipeline>& pipeline, VkDescriptorSet descriptorSet);
 
         void copyBufferToBuffer(const VkBuffer& src, const VkBuffer& dst,
             uint32_t count,

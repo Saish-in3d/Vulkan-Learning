@@ -13,9 +13,10 @@
 #include "vulkancore/Semaphore.h"
 #include "vulkancore/Fence.h"
 #include "vulkancore/DataBuffer.h"
+#include "renderer/UniformManager.h"
 
 namespace VKFW {
-	class VulkanApp 
+	class VulkanApp
 	{
 	public:
 		void run();
@@ -36,9 +37,15 @@ namespace VKFW {
 
 		void onResize(int w, int h);
 
+		float getFrameTime();
+
+		void updateUBO(float dt);
+
+
+
 		void createSyncObjects();
 
-		Sharedref<Platform::Window> mwindow{nullptr};
+		Sharedref<Platform::Window> mwindow{ nullptr };
 		Sharedref<vulkancore::Instance> mInstance{ nullptr };
 		Sharedref<vulkancore::WindowSurface> mSurface{ nullptr };
 		Sharedref<vulkancore::Device> mDevice{ nullptr };
@@ -47,7 +54,9 @@ namespace VKFW {
 		Sharedref<vulkancore::RenderPass> mRenderPass{ nullptr };
 		Sharedref<vulkancore::Pipeline> mPipeline{ nullptr };
 		Sharedref<vulkancore::DataBuffer> mVertexBuffer{ nullptr };
+		Sharedref<renderer::UniformManager> mUniformManager{ nullptr };
 
+		float mRotatiom = 0.0f;
 
 		std::vector<Sharedref<vulkancore::Semaphore>> mImageAvailableSemaphores{};
 		std::vector<Sharedref<vulkancore::Semaphore>> mRenderFinishedSemaphores{};
