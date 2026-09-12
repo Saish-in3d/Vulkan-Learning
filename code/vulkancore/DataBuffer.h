@@ -33,7 +33,7 @@ namespace VKFW::vulkancore {
 
         [[nodiscard]] VkBuffer getBuffer() const { return mBuffer; }
         [[nodiscard]] VkDeviceMemory getMemory() const { return mMemory; }
-        [[nodiscard]] const VkDescriptorBufferInfo getBufferInfo() const { return mBufferInfo; }
+        [[nodiscard]] const VkDescriptorBufferInfo& getBufferInfo() const { return mBufferInfo; }
 
     private:
         void copyBuffer(const VkBuffer& src, const VkBuffer& dst, VkDeviceSize size);

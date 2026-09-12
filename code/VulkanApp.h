@@ -57,6 +57,7 @@ namespace VKFW {
 		Sharedref<renderer::UniformManager> mUniformManager{ nullptr };
 
 		float mRotatiom = 0.0f;
+		double lastTime = 0;
 
 		std::vector<Sharedref<vulkancore::Semaphore>> mImageAvailableSemaphores{};
 		std::vector<Sharedref<vulkancore::Semaphore>> mRenderFinishedSemaphores{};

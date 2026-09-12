@@ -376,10 +376,10 @@ namespace VKFW
 	}
 	float VulkanApp::getFrameTime()
 	{
-		double lastTime = 0;
+		
 		double currentTime = glfwGetTime();
 		float deltaTime = static_cast<float>(currentTime - lastTime);
-		lastTime = currentTime;
+		//lastTime = currentTime;
 		return deltaTime;
 
 	}
@@ -398,7 +398,7 @@ namespace VKFW
 			glm::vec3(0.0f, 1.0f, 0.0f)
 		);
 
-		float aspect = static_cast<float>(width / height);
+		float aspect = static_cast<float>(width) / height;
 		cam.proj = glm::perspective(glm::radians(45.f),aspect,0.1f,100.f);
 
 		mUniformManager->updateCameraUBO(cam, mCurrentFrame);
