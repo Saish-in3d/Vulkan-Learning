@@ -28,6 +28,11 @@ namespace VKFW::vulkancore {
         void copyBufferToBuffer(const VkBuffer& src, const VkBuffer& dst,
             uint32_t count,
             const std::vector<VkBufferCopy>& regions);
+
+        void copyBufferToImage(VkBuffer src, VkImage dst,
+            VkImageLayout dstLayout,
+            uint32_t width, uint32_t height);
+
         void submitCommandBuffer(VkQueue queue);
         void waitCommandBuffer(VkQueue queue);
 
