@@ -13,7 +13,7 @@
 #include "vulkancore/Semaphore.h"
 #include "vulkancore/Fence.h"
 #include "vulkancore/DataBuffer.h"
-#include "renderer/UniformManager.h"
+#include "renderer/DescriptorManager.h"
 
 namespace VKFW {
 	class VulkanApp

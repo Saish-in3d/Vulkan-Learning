@@ -1,7 +1,7 @@
 #pragma once
 #include "vk_common.h"
 #include "device.h"
-#include "UniformParameter.h"
+#include "DescriptorParameter.h"
 
 namespace VKFW::vulkancore {
 
@@ -10,16 +10,16 @@ namespace VKFW::vulkancore {
         DescriptorSetLayout(const Sharedref<Device>& device);
         ~DescriptorSetLayout();
 
-        void build(const std::vector<Sharedref<UniformParameter>>& params);
+        void build(const std::vector<Sharedref<DescriptorParameter>>& params);
 
         [[nodiscard]] VkDescriptorSetLayout getLayout() const { return mLayout; }
         [[nodiscard]] Sharedref<Device>           getDevice() const { return mDevice; }
-        [[nodiscard]] std::vector<Sharedref<UniformParameter>> getBindingParameters() const { return mBindingParameters; }
+        [[nodiscard]] std::vector<Sharedref<DescriptorParameter>> getBindingParameters() const { return mBindingParameters; }
 
     private:
         VkDescriptorSetLayout              mLayout{ VK_NULL_HANDLE };
         Sharedref<Device>                        mDevice{ nullptr };
-        std::vector<Sharedref<UniformParameter>> mBindingParameters{};
+        std::vector<Sharedref<DescriptorParameter>> mBindingParameters{};
     };
 
 }

@@ -12,7 +12,7 @@ VKFW::vulkancore::DescriptorSetLayout::~DescriptorSetLayout()
 		vkDestroyDescriptorSetLayout(mDevice->getDevice(), mLayout, nullptr);
 }
 
-void VKFW::vulkancore::DescriptorSetLayout::build(const std::vector<Sharedref<UniformParameter>>& params) // current length of this array is 1 as only single UBO
+void VKFW::vulkancore::DescriptorSetLayout::build(const std::vector<Sharedref<DescriptorParameter>>& params) // current length of this array is 1 as only single UBO
 {
     mBindingParameters = params;
 

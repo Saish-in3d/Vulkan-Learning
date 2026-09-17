@@ -134,6 +134,8 @@ namespace VKFW::vulkancore {
 
         auto staging = DataBuffer::createStageBuffer(mDevice, size, (void*)pData);
 
+        //Creating temp command buffer and submitting it to the queue 
+        //Cmd contains instructions to transfer staging pixel buffer to device native image
         auto cmd = MakeSharedRef<CommandBuffer>(mDevice, commandPool);
         cmd->beginCommandBuffer(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
         cmd->copyBufferToImage(

@@ -1,7 +1,7 @@
 #pragma once
 #include "vk_common.h"
 #include "device.h"
-#include "UniformParameter.h"
+#include "DescriptorParameter.h"
 #include "DescriptorSetLayout.h"
 #include "DescriptorPool.h"
 
@@ -10,7 +10,7 @@ namespace VKFW::vulkancore {
     class DescriptorSet {
     public:
         DescriptorSet(const Sharedref<Device>& device,
-            const std::vector<Sharedref<UniformParameter>>& params,
+            const std::vector<Sharedref<DescriptorParameter>>& params,
             const Sharedref<DescriptorSetLayout>& layout,
             const Sharedref<DescriptorPool>& pool,
             int frameCount);

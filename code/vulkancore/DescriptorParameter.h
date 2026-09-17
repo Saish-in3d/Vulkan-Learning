@@ -1,10 +1,12 @@
 #pragma once
 #include "vk_common.h"
 #include "DataBuffer.h"
+#include "Texture.h"
+
 
 namespace VKFW::vulkancore {
 
-    class UniformParameter { //can be eatch for cameraUBO, modeltransformUBO. etc
+    class DescriptorParameter { //can be eatch for cameraUBO, modeltransformUBO. etc
     public:
         size_t             mSize{ 0 };
         uint32_t           mBinding{ 0 };
@@ -14,7 +16,11 @@ namespace VKFW::vulkancore {
 
         //This will also hold other descriptor parameters like SSBO (Storage buffers), texture samplers, etc
 
+        //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
         std::vector<Sharedref<DataBuffer>> mBuffers{}; //multiple buffers for multiple swapchain images
+
+        //VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+        std::vector < Sharedref<Texture>> mTextures;
     };
 
 }

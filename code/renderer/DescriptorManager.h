@@ -5,6 +5,7 @@
 #include "../vulkancore/DataBuffer.h"
 #include "../vulkancore/Device.h"
 #include "../vulkancore/CommandPool.h"
+#include "../vulkancore/Texture.h"
 #include "render_common.h"
 
 namespace VKFW::renderer {
@@ -18,6 +19,7 @@ namespace VKFW::renderer {
 
         void attachCameraUBO();   // binding 0: view + proj
         void attachObjectUBO();   // binding 1: model matrix
+        void attachTexture(const Sharedref<vulkancore::Texture>& texture);
         
 
         void build();
@@ -26,14 +28,15 @@ namespace VKFW::renderer {
         void updateObjectUBO(const ObjectUBO& data, int frameIndex);
 
         [[nodiscard]] Sharedref<vulkancore::DescriptorSetLayout> getLayout() const { return mLayout; }
-        [[nodiscard]] VkDescriptorSet getDescriptorSet(int frameIndex) const {
+        [[nodiscard]] VkDescriptorSet getDescriptorSet(int frameIndex) const 
+        {
             return mDescriptorSet->getDescriptorSet(frameIndex);
         }
 
     private:
         Sharedref<vulkancore::Device>                        mDevice{ nullptr };
         int                                            mFrameCount{ 1 };
-        std::vector<Sharedref<vulkancore::UniformParameter>> mParams{};
+        std::vector<Sharedref<vulkancore::DescriptorParameter>> mParams{};
 
         Sharedref<vulkancore::DescriptorSetLayout> mLayout{ nullptr };
         Sharedref<vulkancore::DescriptorPool>      mPool{ nullptr };

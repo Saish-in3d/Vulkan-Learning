@@ -1,5 +1,5 @@
 file(GLOB_RECURSE VULKANCORE ./*.cpp)
-add_library(vulkancoreLib ${VULKANCORE} "Commandpool.h" "Commandpool.cpp" "Swapchain.h" "Swapchain.cpp" "RenderPass.h" "RenderPass.cpp" "Fence.h" "Fence.cpp" "Semaphore.h" "Semaphore.cpp" "DataBuffer.h" "DataBuffer.cpp" "UniformParameter.h" "DescriptorSetLayout.h" "DescriptorSetLayout.cpp" "DescriptorPool.h" "DescriptorPool.cpp" "DescriptorSet.h" "DescriptorSet.cpp" "image.h" "image.cpp" "stb_image.h") 
+add_library(vulkancoreLib ${VULKANCORE} "Commandpool.h" "Commandpool.cpp" "Swapchain.h" "Swapchain.cpp" "RenderPass.h" "RenderPass.cpp" "Fence.h" "Fence.cpp" "Semaphore.h" "Semaphore.cpp" "DataBuffer.h" "DataBuffer.cpp" "DescriptorParameter.h" "DescriptorSetLayout.h" "DescriptorSetLayout.cpp" "DescriptorPool.h" "DescriptorPool.cpp" "DescriptorSet.h" "DescriptorSet.cpp" "image.h" "image.cpp" "stb_image.h" "Sampler.h" "Sampler.cpp" "Texture.h" "Texture.cpp") 
 #Saving
 add_library(
     Device.cpp
@@ -18,4 +18,4 @@ add_library(
   Shader.h 
  Shader.cpp
 
- "Fence.h" "Fence.cpp" "Semaphore.h" "Semaphore.cpp" "DataBuffer.h" "DataBuffer.cpp" "UniformParameter.h" "DescriptorSetLayout.h" "DescriptorSetLayout.cpp" "DescriptorPool.h" "DescriptorPool.cpp" "DescriptorSet.h" "DescriptorSet.cpp" "image.h" "image.cpp" "stb_image.h")
+ "Fence.h" "Fence.cpp" "Semaphore.h" "Semaphore.cpp" "DataBuffer.h" "DataBuffer.cpp" "DescriptorParameter.h" "DescriptorSetLayout.h" "DescriptorSetLayout.cpp" "DescriptorPool.h" "DescriptorPool.cpp" "DescriptorSet.h" "DescriptorSet.cpp" "image.h" "image.cpp" "stb_image.h" "Sampler.h" "Sampler.cpp" "Texture.h" "Texture.cpp")

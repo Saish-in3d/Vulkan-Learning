@@ -4,7 +4,7 @@ namespace VKFW::vulkancore {
 
     DescriptorSet::DescriptorSet( // Multiple descriptor sets for each frame on fly //Each descriptor set contains multiple descriptors
         const Sharedref<Device>& device,
-        const std::vector<Sharedref<UniformParameter>>& params,
+        const std::vector<Sharedref<DescriptorParameter>>& params,
         const Sharedref<DescriptorSetLayout>& layout,
         const Sharedref<DescriptorPool>& pool,
         int frameCount)
@@ -22,15 +22,19 @@ namespace VKFW::vulkancore {
         //Actually Allocating descriptor sets to descriptor pool
         if (vkAllocateDescriptorSets(mDevice->getDevice(),
             &allocInfo, mDescriptorSets.data()) != VK_SUCCESS)
+        {
             throw std::runtime_error("failed to allocate descriptor sets");
+        }
 
         // write/bind/assign/upddating UBO descriptors for each frame on the fly via std::vector<VkWriteDescriptorSet> writes;
-        for (int i = 0; i < frameCount; i++) {
+        for (int i = 0; i < frameCount; i++) 
+        {
             std::vector<VkWriteDescriptorSet> writes;
 
-            for (const auto& param : params) {
-                if (param->mDescriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
-                    continue; //Will  add other types of descriptors later
+            for (const auto& param : params) 
+            {
+                //if (param->mDescriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+                //    continue; //Will  add other types of descriptors later
 
                 VkWriteDescriptorSet w{};
                 w.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -39,7 +43,19 @@ namespace VKFW::vulkancore {
                 w.dstArrayElement = 0;
                 w.descriptorType = param->mDescriptorType;
                 w.descriptorCount = param->mCount;
-                w.pBufferInfo = &param->mBuffers[i]->getBufferInfo();
+
+                if (param->mDescriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+                {
+                    w.pBufferInfo = &param->mBuffers[i]->getBufferInfo();
+                }
+                else if (param->mDescriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+                {
+                    w.pImageInfo = &param->mTextures[i]->getImageInfo();
+                }
+                else
+                {
+                    continue;
+                }
                 writes.push_back(w);
             }
 

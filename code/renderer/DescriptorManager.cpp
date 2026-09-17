@@ -1,4 +1,4 @@
-#include "UniformManager.h"
+#include "DescriptorManager.h"
 
 namespace VKFW::renderer {
 
@@ -9,8 +9,9 @@ namespace VKFW::renderer {
         mFrameCount = frameCount;
     }
 
-    void UniformManager::attachCameraUBO() {
-        auto p = MakeSharedRef<vulkancore::UniformParameter>();
+    void UniformManager::attachCameraUBO() 
+    {
+        auto p = MakeSharedRef<vulkancore::DescriptorParameter>();
         p->mBinding = (uint32_t)mParams.size();
         p->mDescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         p->mCount = 1;
@@ -24,8 +25,9 @@ namespace VKFW::renderer {
         mParams.push_back(p);
     }
 
-    void UniformManager::attachObjectUBO() {
-        auto p = MakeSharedRef<vulkancore::UniformParameter>();
+    void UniformManager::attachObjectUBO()
+    {
+        auto p = MakeSharedRef<vulkancore::DescriptorParameter>();
         p->mBinding = (uint32_t)mParams.size();
         p->mDescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         p->mCount = 1;
@@ -39,7 +41,23 @@ namespace VKFW::renderer {
         mParams.push_back(p);
     }
 
-    void UniformManager::build() {
+    void UniformManager::attachTexture(const Sharedref<vulkancore::Texture>& texture)
+    {
+        auto p = MakeSharedRef<vulkancore::DescriptorParameter>();
+        p->mBinding = (uint32_t)mParams.size();
+        p->mDescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        p->mCount = 1;
+        p->mStageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+        // same texture duplicated per frame (static textures)
+        for (int i = 0; i < mFrameCount; i++)
+            p->mTextures.push_back(texture);
+
+        mParams.push_back(p);
+    }
+
+    void UniformManager::build() 
+    {
         mLayout = MakeSharedRef<vulkancore::DescriptorSetLayout>(mDevice);
         mLayout->build(mParams);
 
@@ -54,7 +72,8 @@ namespace VKFW::renderer {
         mParams[0]->mBuffers[frameIndex]->updateBufferByMap(&data, sizeof(CameraUBO));
     }
 
-    void UniformManager::updateObjectUBO(const ObjectUBO& data, int frameIndex) {
+    void UniformManager::updateObjectUBO(const ObjectUBO& data, int frameIndex)
+    {
         mParams[1]->mBuffers[frameIndex]->updateBufferByMap(&data, sizeof(ObjectUBO));
     }
 
