@@ -13,6 +13,7 @@
 #include "vulkancore/Semaphore.h"
 #include "vulkancore/Fence.h"
 #include "vulkancore/DataBuffer.h"
+#include "vulkancore/Texture.h"
 #include "renderer/DescriptorManager.h"
 
 namespace VKFW {
@@ -54,7 +55,8 @@ namespace VKFW {
 		Sharedref<vulkancore::RenderPass> mRenderPass{ nullptr };
 		Sharedref<vulkancore::Pipeline> mPipeline{ nullptr };
 		Sharedref<vulkancore::DataBuffer> mVertexBuffer{ nullptr };
-		Sharedref<renderer::UniformManager> mUniformManager{ nullptr };
+		Sharedref<vulkancore::Texture> mTexture{ nullptr };
+		Sharedref<renderer::DescriptorManager> mDescriptorManager{ nullptr };
 
 		float mRotatiom = 0.0f;
 		double lastTime = 0;

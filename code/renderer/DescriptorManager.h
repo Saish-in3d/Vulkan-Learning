@@ -10,10 +10,10 @@
 
 namespace VKFW::renderer {
 
-    class UniformManager {
+    class DescriptorManager {
     public:
-        UniformManager() = default;
-        ~UniformManager() = default;
+        DescriptorManager() = default;
+        ~DescriptorManager() = default;
 
         void init(const Sharedref<vulkancore::Device>& device, int frameCount);
 

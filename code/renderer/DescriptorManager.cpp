@@ -2,14 +2,14 @@
 
 namespace VKFW::renderer {
 
-    void UniformManager::init(
+    void DescriptorManager::init(
         const Sharedref<vulkancore::Device>& device, int frameCount)
     {
         mDevice = device;
         mFrameCount = frameCount;
     }
 
-    void UniformManager::attachCameraUBO() 
+    void DescriptorManager::attachCameraUBO()
     {
         auto p = MakeSharedRef<vulkancore::DescriptorParameter>();
         p->mBinding = (uint32_t)mParams.size();
@@ -25,7 +25,7 @@ namespace VKFW::renderer {
         mParams.push_back(p);
     }
 
-    void UniformManager::attachObjectUBO()
+    void DescriptorManager::attachObjectUBO()
     {
         auto p = MakeSharedRef<vulkancore::DescriptorParameter>();
         p->mBinding = (uint32_t)mParams.size();
@@ -41,7 +41,7 @@ namespace VKFW::renderer {
         mParams.push_back(p);
     }
 
-    void UniformManager::attachTexture(const Sharedref<vulkancore::Texture>& texture)
+    void DescriptorManager::attachTexture(const Sharedref<vulkancore::Texture>& texture)
     {
         auto p = MakeSharedRef<vulkancore::DescriptorParameter>();
         p->mBinding = (uint32_t)mParams.size();
@@ -56,7 +56,7 @@ namespace VKFW::renderer {
         mParams.push_back(p);
     }
 
-    void UniformManager::build() 
+    void DescriptorManager::build()
     {
         mLayout = MakeSharedRef<vulkancore::DescriptorSetLayout>(mDevice);
         mLayout->build(mParams);
@@ -68,11 +68,12 @@ namespace VKFW::renderer {
             mDevice, mParams, mLayout, mPool, mFrameCount);
     }
 
-    void UniformManager::updateCameraUBO(const CameraUBO& data, int frameIndex) {
+    void DescriptorManager::updateCameraUBO(const CameraUBO& data, int frameIndex)
+    {
         mParams[0]->mBuffers[frameIndex]->updateBufferByMap(&data, sizeof(CameraUBO));
     }
 
-    void UniformManager::updateObjectUBO(const ObjectUBO& data, int frameIndex)
+    void DescriptorManager::updateObjectUBO(const ObjectUBO& data, int frameIndex)
     {
         mParams[1]->mBuffers[frameIndex]->updateBufferByMap(&data, sizeof(ObjectUBO));
     }

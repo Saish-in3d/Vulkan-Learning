@@ -4,13 +4,19 @@ struct Vertex
 {
 	float pos[2];
 	float color[3];
+	float uv[2];
 };
 
 static const std::vector<Vertex> Vertices =
 {
-	{{0.0f,-0.5f}, {1.0f,0.0f,0.0f,} },
-	{{0.5f,0.5f}, {0.0f,1.0f,0.0f,} },
-	{{-0.5f,0.5f}, {0.0f,0.0f,1.0f,} },
+	// triangle 1
+	{{-0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+	{{ 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+	{{ 0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+	// triangle 2
+	{{ 0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+	{{-0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+	{{-0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
 };
 
 
@@ -55,11 +61,18 @@ namespace VKFW
 		mRenderPass = factories::RenderPassFactory::CreateSimpleRenderPass(mDevice,mSwapChain->getSwapChainImageFormat());
 		mSwapChain->createFrameBuffers(mRenderPass);
 
-		mUniformManager = MakeSharedRef<renderer::UniformManager>();
-		mUniformManager->init(mDevice, mSwapChain->getImageCount());
-		mUniformManager->attachCameraUBO();
-		mUniformManager->attachObjectUBO();
-		mUniformManager->build();
+
+		mTexture = vulkancore::Texture::create(mDevice, mCommandPool, "assets/logo.jpg");
+
+
+		mDescriptorManager = MakeSharedRef<renderer::DescriptorManager>();
+		mDescriptorManager->init(mDevice, mSwapChain->getImageCount());
+		mDescriptorManager->attachCameraUBO();
+		mDescriptorManager->attachObjectUBO();
+		mDescriptorManager->attachTexture(mTexture);
+		mDescriptorManager->build();
+		
+
 
 
 
@@ -133,9 +146,15 @@ namespace VKFW
 		colirAttr.format = VK_FORMAT_R32G32B32_SFLOAT;
 		colirAttr.offset = offsetof(Vertex,color);
 
+		VkVertexInputAttributeDescription  uvAttr{};
+		uvAttr.binding = 0;
+		uvAttr.location = 2;
+		uvAttr.format = VK_FORMAT_R32G32_SFLOAT;
+		uvAttr.offset = offsetof(Vertex, uv);
+
 		std::vector<VkVertexInputBindingDescription> bindings = { binding };
 
-		std::vector<VkVertexInputAttributeDescription> attributes = { posAttr,colirAttr };
+		std::vector<VkVertexInputAttributeDescription> attributes = { posAttr,colirAttr,uvAttr };
 
 
 		//VBO
@@ -152,7 +171,7 @@ namespace VKFW
 		pipeline->mAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		pipeline->mAssemblyState.primitiveRestartEnable = VK_FALSE;
 
-		// === Chapter 3: Dynamic state + Viewport ===
+		//  Dynamic state + Viewport
 		// viewport and scissor are dynamic — set per frame in CommandBuffer
 		// means we don't bake resolution into the pipeline
 		pipeline->mDynamicStates = {
@@ -171,7 +190,7 @@ namespace VKFW
 		pipeline->mViewportState.viewportCount = 1;
 		pipeline->mViewportState.scissorCount = 1;
 
-		// === Chapter 4: Rasterizer ===
+		//  Rasterizer
 		pipeline->mRasterState.sType =
 			VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		pipeline->mRasterState.depthClampEnable = VK_FALSE;
@@ -182,14 +201,13 @@ namespace VKFW
 		pipeline->mRasterState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		pipeline->mRasterState.depthBiasEnable = VK_FALSE;
 
-		// === Chapter 5: Multisample — disabled, Part 2 enables MSAA ===
+		// Multisample 
 		pipeline->mMultisampleState.sType =
 			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		pipeline->mMultisampleState.sampleShadingEnable = VK_FALSE;
 		pipeline->mMultisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-		// === Chapter 6: ColorBlend — no blending, output replaces ===
-		// TODO L14: enable blending for transparent materials
+		//ColorBlend — no blending, output replaces 
 		VkPipelineColorBlendAttachmentState blendAttachment{};
 		blendAttachment.colorWriteMask =
 			VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
@@ -205,17 +223,15 @@ namespace VKFW
 		pipeline->mBlendState.pAttachments =
 			pipeline->mBlendAttachmentStates.data();
 
-		// === Chapter 7: DepthStencil — disabled, no depth buffer yet ===
-		// TODO L13: enable depth test and depth write
+		// DepthStencil — disabled, no depth buffer yet
 		pipeline->mDepthStencilState.sType =
 			VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 		pipeline->mDepthStencilState.depthTestEnable = VK_FALSE;
 		pipeline->mDepthStencilState.depthWriteEnable = VK_FALSE;
 
-		// === Chapter 8: PipelineLayout — empty, no descriptor sets, no push constants ===
-		// TODO L12: add descriptor set layouts for UBO
+		//  PipelineLayout
 		static VkDescriptorSetLayout descriptorlayouts[] = {
-			mUniformManager->getLayout()->getLayout()
+			mDescriptorManager->getLayout()->getLayout()
 
 		};
 
@@ -224,9 +240,6 @@ namespace VKFW
 		pipeline->mPipelineLayoutInfo.setLayoutCount = 1;
 		pipeline->mPipelineLayoutInfo.pSetLayouts = descriptorlayouts;
 
-		
-		/*pipeline->mPipelineLayoutInfo.setLayoutCount = 0;
-		pipeline->mPipelineLayoutInfo.pushConstantRangeCount = 0;*/
 
 		pipeline->build();
 		return pipeline;
@@ -331,7 +344,7 @@ namespace VKFW
 			//Binding graphics pipeline
 			mCommandBuffers[i]->bindGraphicPipeline(mPipeline);
 
-			mCommandBuffers[i]->bindDescriptorSets(mPipeline, mUniformManager->getDescriptorSet(i));
+			mCommandBuffers[i]->bindDescriptorSets(mPipeline, mDescriptorManager->getDescriptorSet(i));
 			
 
 			//Binding vertiex buffer
@@ -389,7 +402,7 @@ namespace VKFW
 		ObjectUBO obj{};
 		obj.model = glm::rotate(glm::mat4(1.f), mRotatiom, glm::vec3(0.f,0.f,1.f));
 
-		mUniformManager->updateObjectUBO(obj,mCurrentFrame);
+		mDescriptorManager->updateObjectUBO(obj,mCurrentFrame);
 
 		CameraUBO cam{};
 		cam.view = glm::lookAt(
@@ -401,7 +414,7 @@ namespace VKFW
 		float aspect = static_cast<float>(width) / height;
 		cam.proj = glm::perspective(glm::radians(45.f),aspect,0.1f,100.f);
 
-		mUniformManager->updateCameraUBO(cam, mCurrentFrame);
+		mDescriptorManager->updateCameraUBO(cam, mCurrentFrame);
 
 	}
 	void VulkanApp::createSyncObjects()
