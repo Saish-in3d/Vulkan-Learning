@@ -1,3 +1,4 @@
+#include "DataBuffer.h"
 #include "dataBuffer.h"
 #include <stdexcept>
 #include <cstring>
@@ -54,6 +55,16 @@ namespace VKFW::vulkancore {
         auto buffer = MakeSharedRef<DataBuffer>(
             device, size,
             VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        buffer->updateBufferByStage(pData, size);
+        return buffer;
+    }
+
+    Sharedref<DataBuffer> DataBuffer::createIndexBuffer(const Sharedref<Device>& device, VkDeviceSize size, void* pData)
+    {
+        auto buffer = MakeSharedRef<DataBuffer>(
+            device, size,
+            VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         buffer->updateBufferByStage(pData, size);
         return buffer;

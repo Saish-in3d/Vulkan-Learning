@@ -1,5 +1,5 @@
 struct VertexInput {
-    [[vk::location(0)]] float2 pos;
+    [[vk::location(0)]] float3 pos;
     [[vk::location(1)]] float3 color;
     [[vk::location(2)]] float2 uv;
 };
@@ -27,7 +27,7 @@ struct ObjectUBO {
 VertexOutput vertMain(VertexInput input)
 {
     VertexOutput output;
-    float4 worldPos = mul(object.model, float4(input.pos, 0.0, 1.0));
+    float4 worldPos = mul(object.model, float4(input.pos, 1.0));
     float4 viewPos  = mul(camera.view, worldPos);
     output.position = mul(camera.proj, viewPos);
     output.color    = input.color;

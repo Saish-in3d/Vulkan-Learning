@@ -1,25 +1,5 @@
 #include "VulkanApp.h"
 
-struct Vertex
-{
-	float pos[2];
-	float color[3];
-	float uv[2];
-};
-
-static const std::vector<Vertex> Vertices =
-{
-	// triangle 1
-	{{-0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-	{{ 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-	{{ 0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
-	// triangle 2
-	{{ 0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
-	{{-0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-	{{-0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-};
-
-
 
 namespace VKFW
 {
@@ -56,6 +36,10 @@ namespace VKFW
 		mDevice = MakeSharedRef<vulkancore::Device>(mInstance,mSurface);
 		mCommandPool = MakeSharedRef<vulkancore::CommandPool>(mDevice);
 
+		mModel = MakeSharedRef<renderer::Model>();
+		mModel->loadModel("assets/rotating_cube.obj", mDevice);
+
+
 		mSwapChain = MakeSharedRef<vulkancore::SwapChain>(mDevice,mwindow,mSurface);
 
 		mRenderPass = factories::RenderPassFactory::CreateSimpleRenderPass(mDevice,mSwapChain->getSwapChainImageFormat());
@@ -73,10 +57,8 @@ namespace VKFW
 		mDescriptorManager->build();
 		
 
-
-
-
-		mVertexBuffer = vulkancore::DataBuffer::createVertexBuffer(mDevice, sizeof(Vertex) * Vertices.size(), (void*)Vertices.data());
+		
+		
 
 		mPipeline = createPipeline();
 		recordCommandBuffers();
@@ -128,33 +110,11 @@ namespace VKFW
 
 		pipeline->setShaderGroup({ vertShader, fragShader });
 
-
-		VkVertexInputBindingDescription binding{};
-		binding.binding = 0;
-		binding.stride = sizeof(Vertex);
-		binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 		
-		VkVertexInputAttributeDescription posAttr{};
-		posAttr.binding = 0;
-		posAttr.location = 0;
-		posAttr.format = VK_FORMAT_R32G32_SFLOAT;
-		posAttr.offset = 0;
 
-		VkVertexInputAttributeDescription  colirAttr{};
-		colirAttr.binding = 0;
-		colirAttr.location = 1;
-		colirAttr.format = VK_FORMAT_R32G32B32_SFLOAT;
-		colirAttr.offset = offsetof(Vertex,color);
+		std::vector<VkVertexInputBindingDescription> bindings =  mModel->getBindingDescriptions() ;
 
-		VkVertexInputAttributeDescription  uvAttr{};
-		uvAttr.binding = 0;
-		uvAttr.location = 2;
-		uvAttr.format = VK_FORMAT_R32G32_SFLOAT;
-		uvAttr.offset = offsetof(Vertex, uv);
-
-		std::vector<VkVertexInputBindingDescription> bindings = { binding };
-
-		std::vector<VkVertexInputAttributeDescription> attributes = { posAttr,colirAttr,uvAttr };
+		std::vector<VkVertexInputAttributeDescription> attributes =  mModel->getAttributeDescriptions() ;
 
 
 		//VBO
@@ -347,10 +307,7 @@ namespace VKFW
 			mCommandBuffers[i]->bindDescriptorSets(mPipeline, mDescriptorManager->getDescriptorSet(i));
 			
 
-			//Binding vertiex buffer
-			VkBuffer vertexBuffers[] = { mVertexBuffer->getBuffer() };
-			VkDeviceSize offsets[] = { 0 };
-			vkCmdBindVertexBuffers(mCommandBuffers[i]->getCommandBuffer(), 0, 1, vertexBuffers,offsets);
+			
 
 
 			VkViewport viewport{};
@@ -367,8 +324,8 @@ namespace VKFW
 			scissor.extent = extent;
 
 			vkCmdSetScissor(mCommandBuffers[i]->getCommandBuffer(), 0, 1, &scissor);
-
-			mCommandBuffers[i]->draw(Vertices.size());
+			
+			mModel->draw(mCommandBuffers[i]);
 			mCommandBuffers[i]->endRenderPass();
 			mCommandBuffers[i]->endCommandBuffer();
 		}
@@ -400,13 +357,13 @@ namespace VKFW
 	{
 		mRotatiom = dt * glm::radians(45.f);
 		ObjectUBO obj{};
-		obj.model = glm::rotate(glm::mat4(1.f), mRotatiom, glm::vec3(0.f,0.f,1.f));
+		obj.model = glm::rotate(glm::mat4(1.f), mRotatiom, glm::vec3(0.f,1.f,0.f));
 
 		mDescriptorManager->updateObjectUBO(obj,mCurrentFrame);
 
 		CameraUBO cam{};
 		cam.view = glm::lookAt(
-			glm::vec3(0.0f, 0.0f, 2.0f),
+			glm::vec3(0.0f, 2.0f, 5.0f),
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f)
 		);

@@ -15,6 +15,7 @@
 #include "vulkancore/DataBuffer.h"
 #include "vulkancore/Texture.h"
 #include "renderer/DescriptorManager.h"
+#include "renderer/Model.h"
 
 namespace VKFW {
 	class VulkanApp
@@ -54,9 +55,9 @@ namespace VKFW {
 		Sharedref<vulkancore::SwapChain> mSwapChain{ nullptr };
 		Sharedref<vulkancore::RenderPass> mRenderPass{ nullptr };
 		Sharedref<vulkancore::Pipeline> mPipeline{ nullptr };
-		Sharedref<vulkancore::DataBuffer> mVertexBuffer{ nullptr };
 		Sharedref<vulkancore::Texture> mTexture{ nullptr };
 		Sharedref<renderer::DescriptorManager> mDescriptorManager{ nullptr };
+		Sharedref<renderer::Model> mModel{ nullptr };
 
 		float mRotatiom = 0.0f;
 		double lastTime = 0;

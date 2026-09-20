@@ -13,6 +13,12 @@ namespace VKFW::vulkancore {
             VkDeviceSize size,
             void* pData);
 
+        static Sharedref<DataBuffer> createIndexBuffer(
+            const Sharedref<Device>& device,
+            VkDeviceSize size,
+            void* pData);
+
+
         static Sharedref<DataBuffer> createStageBuffer(
             const Sharedref<Device>& device,
             VkDeviceSize size,

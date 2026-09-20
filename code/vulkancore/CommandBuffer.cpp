@@ -1,6 +1,4 @@
 #include "CommandBuffer.h"
-#include "CommandBuffer.h"
-#include "commandBuffer.h"
 #include <stdexcept>
 
 namespace VKFW::vulkancore {
@@ -20,13 +18,15 @@ namespace VKFW::vulkancore {
             throw std::runtime_error("failed to allocate command buffer");
     }
 
-    CommandBuffer::~CommandBuffer() {
+    CommandBuffer::~CommandBuffer() 
+    {
         if (mCommandBuffer != VK_NULL_HANDLE)
             vkFreeCommandBuffers(mDevice->getDevice(),
                 mCommandPool->getCommandPool(), 1, &mCommandBuffer);
     }
 
-    void CommandBuffer::beginCommandBuffer(VkCommandBufferUsageFlags flags) {
+    void CommandBuffer::beginCommandBuffer(VkCommandBufferUsageFlags flags) 
+    {
         VkCommandBufferBeginInfo info{};
         info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         info.flags = flags;
@@ -34,27 +34,47 @@ namespace VKFW::vulkancore {
             throw std::runtime_error("failed to begin command buffer");
     }
 
-    void CommandBuffer::endCommandBuffer() {
+    void CommandBuffer::endCommandBuffer()
+    {
         if (vkEndCommandBuffer(mCommandBuffer) != VK_SUCCESS)
             throw std::runtime_error("failed to end command buffer");
     }
 
     void CommandBuffer::beginRenderPass(const VkRenderPassBeginInfo& rpInfo,
-        VkSubpassContents contents) {
+        VkSubpassContents contents) 
+    {
         vkCmdBeginRenderPass(mCommandBuffer, &rpInfo, contents);
     }
 
-    void CommandBuffer::endRenderPass() {
+    void CommandBuffer::endRenderPass() 
+    {
         vkCmdEndRenderPass(mCommandBuffer);
     }
 
-    void CommandBuffer::bindGraphicPipeline(const Sharedref<Pipeline>& pipeline) {
+    void CommandBuffer::bindGraphicPipeline(const Sharedref<Pipeline>& pipeline) 
+    {
         vkCmdBindPipeline(mCommandBuffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getPipeline());
     }
 
-    void CommandBuffer::draw(uint32_t vertexCount) {
+    void CommandBuffer::bindVertexBuffer(const std::vector<VkBuffer>& buffers, uint32_t binding, std::vector<VkDeviceSize> offsets)
+    {
+        vkCmdBindVertexBuffers(mCommandBuffer, binding, static_cast<uint32_t>(buffers.size()), buffers.data(), offsets.data());
+    }
+
+    void CommandBuffer::bindIndexBuffer(VkBuffer buffer, uint32_t offset, VkIndexType indexType)
+    {
+        vkCmdBindIndexBuffer(mCommandBuffer, buffer, offset, indexType);
+    }
+
+    void CommandBuffer::draw(uint32_t vertexCount)
+    {
         vkCmdDraw(mCommandBuffer, vertexCount, 1, 0, 0);
+    }
+
+    void CommandBuffer::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
+    {
+        vkCmdDrawIndexed(mCommandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 
     void CommandBuffer::bindDescriptorSets(const Sharedref<Pipeline>& pipeline, VkDescriptorSet descriptorSet)
@@ -98,7 +118,8 @@ namespace VKFW::vulkancore {
 
     }
 
-    void CommandBuffer::submitCommandBuffer(VkQueue queue) {
+    void CommandBuffer::submitCommandBuffer(VkQueue queue) 
+    {
         VkSubmitInfo si{};
         si.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         si.commandBufferCount = 1;
@@ -106,7 +127,8 @@ namespace VKFW::vulkancore {
         vkQueueSubmit(queue, 1, &si, VK_NULL_HANDLE);
     }
 
-    void CommandBuffer::waitCommandBuffer(VkQueue queue) {
+    void CommandBuffer::waitCommandBuffer(VkQueue queue) 
+    {
         vkQueueWaitIdle(queue);
     }
 
