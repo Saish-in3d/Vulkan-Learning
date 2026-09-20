@@ -34,6 +34,18 @@ namespace VKFW::vulkancore {
             bool flipVertically = false);
 
         
+        static VkFormat findDepthFormat(
+            const Sharedref<Device>& device,
+            VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL,
+            VkFormatFeatureFlags features = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
+        
+        //   if depthFormat is UNDEFINED, queries the device for a supported one
+        static Sharedref<Image> createDepthStencil(
+            const Sharedref<Device>& device,
+            uint32_t width,
+            uint32_t height,
+            VkFormat depthFormat = VK_FORMAT_UNDEFINED);
 
 
         Image(const Sharedref<Device>& device, const ImageDescription& desc);

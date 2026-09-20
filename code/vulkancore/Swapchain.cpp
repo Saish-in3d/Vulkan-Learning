@@ -6,8 +6,8 @@
 namespace VKFW::vulkancore {
 
 
-	SwapChain::SwapChain(const Sharedref<Device>& device, const Sharedref<Platform::Window>& window, const Sharedref<WindowSurface>& surface)
-		:mDevice(device), mWindow(window), mSurface(surface)
+	SwapChain::SwapChain(const Sharedref<Device>& device, const Sharedref<Platform::Window>& window, const Sharedref<WindowSurface>& surface, const Sharedref<CommandPool>& commandPool)
+		:mDevice(device), mWindow(window), mSurface(surface), mCommandPool(commandPool)
 	{
 
 		auto info = querySwapChainSupportInfo();
@@ -75,8 +75,7 @@ namespace VKFW::vulkancore {
 		vkGetSwapchainImagesKHR(mDevice->getDevice(), mSwapChain, &mImageCount, mSwapChainImages.data());
 
 
-		std::cout << "SwapChainCreated: " << format.format << " Images count: " << mImageCount
-			<< " Extent: " << extent.width << " x" << extent.height << std::endl;
+		
 
 
 		mSwapChainImageViews.resize(mImageCount);
@@ -84,6 +83,29 @@ namespace VKFW::vulkancore {
 		{
 			mSwapChainImageViews[i] = createImageView(mSwapChainImages[i], mSwapChainFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
 		}
+
+		// create one depth image per swapchain image
+		mDepthImages.resize(mImageCount);
+		for (size_t i = 0; i < mImageCount; i++) 
+		{
+			
+			mDepthImages[i] = Image::createDepthStencil(
+				mDevice,
+				mSwapChainExtent.width,
+				mSwapChainExtent.height,
+				VK_FORMAT_D24_UNORM_S8_UINT);
+
+			// transition to DEPTH_STENCIL_ATTACHMENT_OPTIMAL immediately
+			// so the render pass does not need to handle UNDEFINED -> depth
+			mDepthImages[i]->transitionLayout(
+				VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+				VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+				mCommandPool);
+		}
+
+		std::cout << "SwapChainCreated: " << format.format << " Images count: " << mImageCount
+			<< " Extent: " << extent.width << " x" << extent.height << std::endl;
 
 	}
 
@@ -111,7 +133,7 @@ namespace VKFW::vulkancore {
 		mSwapChainFramebuffers.resize(mImageCount);
 		for (int i = 0; i < mImageCount; i++)
 		{
-			std::array<VkImageView, 1> attachments = { mSwapChainImageViews[i] };
+			std::array<VkImageView, 2> attachments = { mSwapChainImageViews[i],mDepthImages[i]->getImageView()};
 
 			VkFramebufferCreateInfo ci{};
 			ci.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

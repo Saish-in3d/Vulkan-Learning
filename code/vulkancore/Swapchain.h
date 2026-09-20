@@ -3,6 +3,8 @@
 #include "device.h"
 #include "../platform/window.h"
 #include "windowSurface.h"
+#include "image.h"
+#include "Commandpool.h"
 
 
 namespace VKFW::vulkancore {
@@ -27,7 +29,8 @@ namespace VKFW::vulkancore {
 
 		SwapChain(const Sharedref<Device>& device,
 			const Sharedref<Platform::Window>& window,
-			const Sharedref<WindowSurface>& surface);
+			const Sharedref<WindowSurface>& surface,
+			const Sharedref<CommandPool>& commandPool);
 
 		~SwapChain();
 
@@ -73,6 +76,7 @@ namespace VKFW::vulkancore {
 		Sharedref<Device>           mDevice{ nullptr };
 		Sharedref<Platform::Window> mWindow{ nullptr };
 		Sharedref<WindowSurface>    mSurface{ nullptr };
+		Sharedref<CommandPool>      mCommandPool{ nullptr };
 
 
 		VkSwapchainKHR mSwapChain{ VK_NULL_HANDLE };
@@ -81,6 +85,7 @@ namespace VKFW::vulkancore {
 		uint32_t       mImageCount{ 0 };
 
 		std::vector<VkImage>       mSwapChainImages{};
+		std::vector<Sharedref<vulkancore::Image>> mDepthImages{};
 		std::vector<VkImageView>   mSwapChainImageViews{};
 		std::vector<VkFramebuffer> mSwapChainFramebuffers{};
 

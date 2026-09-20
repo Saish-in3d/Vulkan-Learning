@@ -40,9 +40,9 @@ namespace VKFW
 		mModel->loadModel("assets/rotating_cube.obj", mDevice);
 
 
-		mSwapChain = MakeSharedRef<vulkancore::SwapChain>(mDevice,mwindow,mSurface);
+		mSwapChain = MakeSharedRef<vulkancore::SwapChain>(mDevice,mwindow,mSurface,mCommandPool);
 
-		mRenderPass = factories::RenderPassFactory::CreateSimpleRenderPass(mDevice,mSwapChain->getSwapChainImageFormat());
+		mRenderPass = factories::RenderPassFactory::CreateWithDepthRenderPass(mDevice,mSwapChain->getSwapChainImageFormat());
 		mSwapChain->createFrameBuffers(mRenderPass);
 
 
@@ -183,11 +183,12 @@ namespace VKFW
 		pipeline->mBlendState.pAttachments =
 			pipeline->mBlendAttachmentStates.data();
 
-		// DepthStencil — disabled, no depth buffer yet
+		// DepthStencil — disabled, no depth buffer yet (now enabled)
 		pipeline->mDepthStencilState.sType =
 			VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-		pipeline->mDepthStencilState.depthTestEnable = VK_FALSE;
-		pipeline->mDepthStencilState.depthWriteEnable = VK_FALSE;
+		pipeline->mDepthStencilState.depthTestEnable = VK_TRUE;
+		pipeline->mDepthStencilState.depthWriteEnable = VK_TRUE;
+		pipeline->mDepthStencilState.depthCompareOp = VK_COMPARE_OP_LESS;
 
 		//  PipelineLayout
 		static VkDescriptorSetLayout descriptorlayouts[] = {
@@ -286,8 +287,11 @@ namespace VKFW
 
 			//COMMANDbuffer recording starts here
 			mCommandBuffers[i]->beginCommandBuffer();
-			VkClearValue clearColor{};
-			clearColor.color = { 0.0f, 0.2f,0.4f,1.0f };
+
+			std::array<VkClearValue,2> clearValues{};
+
+			clearValues[0].color = {0.0f, 0.2f,0.4f,1.0f};
+			clearValues[1].color = { 1.0f,0.f };
 
 			VkRenderPassBeginInfo rpInfo{};
 			rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -295,8 +299,8 @@ namespace VKFW
 			rpInfo.framebuffer = mSwapChain->getSwapChainFramebuffers()[i];
 			rpInfo.renderArea.offset = { 0,0 };
 			rpInfo.renderArea.extent = mSwapChain->getSwapChainExtent();
-			rpInfo.clearValueCount = 1;
-			rpInfo.pClearValues = &clearColor;
+			rpInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+			rpInfo.pClearValues = clearValues.data();
 
 			
 			mCommandBuffers[i]->beginRenderPass(rpInfo);
